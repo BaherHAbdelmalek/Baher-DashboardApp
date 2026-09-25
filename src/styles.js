@@ -80,6 +80,10 @@ export const styles = {
   settingsRow: { display: "flex", gap: 8, alignItems: "center", marginTop: 8, flexWrap: "wrap" },
   urlBox: { flex: "1 1 260px", padding: "8px 10px", background: "#F7F6F3", border: "1px solid #E7E5E0", borderRadius: 6, fontFamily: "ui-monospace, monospace", fontSize: 11.5, wordBreak: "break-all" },
 
+  fieldGroup: { display: "flex", flexDirection: "column", gap: 3 },
+  fieldLabel: { fontSize: 10.5, fontWeight: 600, color: "#9CA3AF", textTransform: "uppercase", letterSpacing: "0.02em" },
+  categoryAddRow: { display: "flex", gap: 6, alignItems: "center" },
+
   smartBar: { display: "flex", gap: 4, marginBottom: 12 },
   smartBtn: { display: "flex", alignItems: "center", gap: 5, padding: "6px 12px", borderRadius: 100, border: "1px solid #DADDE1", background: "#fff", fontSize: 12.5, color: "#4B5563", cursor: "pointer" },
   smartBtnActive: { borderColor: "#2C5F8A", color: "#2C5F8A", background: "#EAF1F7" },

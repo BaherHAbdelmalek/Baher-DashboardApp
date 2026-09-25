@@ -133,9 +133,7 @@ function Dashboard({ session }) {
         @media (max-width: 640px) { .bh-board { grid-template-columns: 1fr; } }
       `}</style>
 
-      <datalist id="project-list">
-        {projects.map((p) => <option key={p} value={p} />)}
-      </datalist>
+
 
       <header style={styles.header}>
         <div>
