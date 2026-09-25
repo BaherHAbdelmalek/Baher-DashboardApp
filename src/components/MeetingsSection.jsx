@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus, Trash2, Check, RotateCcw, Calendar, MapPin } from "lucide-react";
 import { styles } from "../styles";
 import { dateBadge, groupLabel, formatTime } from "../lib/dates";
+import CategorySelect from "./CategorySelect";
 
 export default function MeetingsSection({ items, insert, update, remove, projects, filterProject, showDone }) {
   const [title, setTitle] = useState("");
@@ -46,12 +47,30 @@ export default function MeetingsSection({ items, insert, update, remove, project
       </div>
 
       <form onSubmit={addMeeting} style={styles.form}>
-        <input className="bh-input" style={styles.textInput} placeholder="Meeting or appointment…" value={title} onChange={(e) => setTitle(e.target.value)} />
-        <input className="bh-input" list="project-list" style={styles.projectInput} value={project} onChange={(e) => setProject(e.target.value)} />
-        <input className="bh-input" type="date" style={styles.dateInput} value={date} onChange={(e) => setDate(e.target.value)} />
-        <input className="bh-input" type="time" style={styles.timeInput} value={time} onChange={(e) => setTime(e.target.value)} />
-        <input className="bh-input" style={styles.locationInput} placeholder="Location (optional)" value={location} onChange={(e) => setLocation(e.target.value)} />
-        <button className="bh-btn" type="submit" style={styles.addBtn}><Plus size={16} /> Add</button>
+        <div style={styles.fieldGroup}>
+          <label style={styles.fieldLabel}>Title</label>
+          <input className="bh-input" style={styles.textInput} placeholder="Meeting or appointment…" value={title} onChange={(e) => setTitle(e.target.value)} />
+        </div>
+        <div style={styles.fieldGroup}>
+          <label style={styles.fieldLabel}>Category</label>
+          <CategorySelect value={project} onChange={setProject} projects={projects} />
+        </div>
+        <div style={styles.fieldGroup}>
+          <label style={styles.fieldLabel}>Date</label>
+          <input className="bh-input" type="date" style={styles.dateInput} value={date} onChange={(e) => setDate(e.target.value)} />
+        </div>
+        <div style={styles.fieldGroup}>
+          <label style={styles.fieldLabel}>Time</label>
+          <input className="bh-input" type="time" style={styles.timeInput} value={time} onChange={(e) => setTime(e.target.value)} />
+        </div>
+        <div style={styles.fieldGroup}>
+          <label style={styles.fieldLabel}>Location</label>
+          <input className="bh-input" style={styles.locationInput} placeholder="Optional" value={location} onChange={(e) => setLocation(e.target.value)} />
+        </div>
+        <div style={styles.fieldGroup}>
+          <label style={styles.fieldLabel}>&nbsp;</label>
+          <button className="bh-btn" type="submit" style={styles.addBtn}><Plus size={16} /> Add</button>
+        </div>
       </form>
 
       <div style={styles.listBody}>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus, Trash2, Check, RotateCcw, ChevronDown, ChevronRight, Flag, X } from "lucide-react";
 import { styles } from "../styles";
 import { dateBadge, groupLabel, formatTime, todayStr, PRIORITY, PRIORITY_ORDER } from "../lib/dates";
+import CategorySelect from "./CategorySelect";
 
 const SMART_VIEWS = [
   { id: "all", label: "All" },
@@ -114,14 +115,32 @@ export default function ListSection({
       </div>
 
       <form onSubmit={addItem} style={styles.form}>
-        <input className="bh-input" style={styles.textInput} placeholder="Add…" value={formTitle} onChange={(e) => setFormTitle(e.target.value)} />
-        <input className="bh-input" list="project-list" style={styles.projectInput} value={formProject} onChange={(e) => setFormProject(e.target.value)} />
-        <input className="bh-input" type="date" style={styles.dateInput} value={formDate} onChange={(e) => setFormDate(e.target.value)} />
-        <input className="bh-input" type="time" style={styles.timeInput} value={formTime} onChange={(e) => setFormTime(e.target.value)} />
-        <select className="bh-select" style={styles.prioritySelect} value={formPriority} onChange={(e) => setFormPriority(e.target.value)}>
-          {PRIORITY_ORDER.map((p) => <option key={p} value={p}>{PRIORITY[p].label} priority</option>)}
-        </select>
-        <button className="bh-btn" type="submit" style={styles.addBtn}><Plus size={16} /> Add</button>
+        <div style={styles.fieldGroup}>
+          <label style={styles.fieldLabel}>Title</label>
+          <input className="bh-input" style={styles.textInput} placeholder="Add…" value={formTitle} onChange={(e) => setFormTitle(e.target.value)} />
+        </div>
+        <div style={styles.fieldGroup}>
+          <label style={styles.fieldLabel}>Category</label>
+          <CategorySelect value={formProject} onChange={setFormProject} projects={projects} />
+        </div>
+        <div style={styles.fieldGroup}>
+          <label style={styles.fieldLabel}>Due date</label>
+          <input className="bh-input" type="date" style={styles.dateInput} value={formDate} onChange={(e) => setFormDate(e.target.value)} />
+        </div>
+        <div style={styles.fieldGroup}>
+          <label style={styles.fieldLabel}>Time</label>
+          <input className="bh-input" type="time" style={styles.timeInput} value={formTime} onChange={(e) => setFormTime(e.target.value)} />
+        </div>
+        <div style={styles.fieldGroup}>
+          <label style={styles.fieldLabel}>Priority</label>
+          <select className="bh-select" style={styles.prioritySelect} value={formPriority} onChange={(e) => setFormPriority(e.target.value)}>
+            {PRIORITY_ORDER.map((p) => <option key={p} value={p}>{PRIORITY[p].label}</option>)}
+          </select>
+        </div>
+        <div style={styles.fieldGroup}>
+          <label style={styles.fieldLabel}>&nbsp;</label>
+          <button className="bh-btn" type="submit" style={styles.addBtn}><Plus size={16} /> Add</button>
+        </div>
       </form>
 
       <div style={styles.listBody}>
