@@ -27,7 +27,7 @@ export const styles = {
   visLabel: { fontSize: 12, color: "#9CA3AF", alignSelf: "center", marginRight: 2 },
   visChip: { fontSize: 12, color: "#4B5563", display: "flex", gap: 5, alignItems: "center", cursor: "pointer", padding: "5px 10px", border: "1px solid #DADDE1", borderRadius: 100, background: "#fff" },
   form: { display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" },
-  textInput: { flex: "1 1 200px", padding: "9px 12px", border: "1px solid #DADDE1", borderRadius: 6, fontSize: 14, background: "#fff" },
+  textInput: { flex: "1 1 140px", maxWidth: 220, padding: "7px 10px", border: "1px solid #DADDE1", borderRadius: 6, fontSize: 13, background: "#fff" },
   projectInput: { width: 150, padding: "9px 10px", border: "1px solid #DADDE1", borderRadius: 6, fontSize: 13, background: "#fff" },
   dateInput: { padding: "9px 10px", border: "1px solid #DADDE1", borderRadius: 6, fontSize: 13, background: "#fff" },
   timeInput: { padding: "9px 10px", border: "1px solid #DADDE1", borderRadius: 6, fontSize: 13, background: "#fff" },
