@@ -25,7 +25,42 @@ Nothing here costs money unless your usage grows well beyond personal/family sca
 - **Install to home screen**: works like a native app icon on iPhone, Android, and desktop
 - **Apple Calendar**: a private subscribable calendar feed URL — add it once in Calendar's settings, and your meetings show up there too (refreshed on Apple's own schedule, not instantly)
 - **Push notifications**: a heads-up ~30 minutes before a meeting, and a daily nudge for due/overdue reminders — even when the app isn't open
-- **Tasks and Reminders, Apple-Reminders-style**: both sections share the same feature set — due date *and* time, priority (none/low/medium/high), a flag toggle, notes, and subtasks — plus smart-view navigation (All / Today / Scheduled / Flagged) instead of a fixed board. Meetings stays separate, matching how Apple splits Reminders from Calendar.
+- **Tasks and Reminders, Apple-Reminders-style**: both sections share the same feature set — due date *and* time, priority (none/low/medium/high), a flag toggle, notes, and subtasks — plus smart-view navigation (All / Today / Scheduled / Flagged / Repeating) instead of a fixed board. Meetings stays separate, matching how Apple splits Reminders from Calendar.
+- **Repeating items**: tasks, reminders *and* meetings can repeat — daily, weekdays, weekly, fortnightly, monthly, quarterly, yearly, or a custom rule (every N days/weeks/months/years, specific weekdays, same date vs. same weekday of the month, ending never / on a date / after N times). See [Repeating items](#repeating-items) below.
+- **Editable after the fact**: every field on every item can be changed from the item's own detail panel — title, date, time, priority, category, location, repeat, notes, subtasks.
+- **Built for phone, iPad and desktop**: a thumb-reachable bottom bar on phones, a two-column layout on wide screens, full-size touch targets, safe-area handling around the notch and home indicator, and automatic dark mode (with a manual light/dark/system override).
+
+## Repeating items
+
+Set **Repeat** when you add something, or open any item's detail panel and
+choose an interval. A repeat needs a due date — it's the date the schedule
+counts from — so the picker says so if one isn't set yet.
+
+**How a repeat behaves.** Ticking off a repeating item closes out *that*
+occurrence and creates the next one as a new row, carrying across the
+category, time, priority, notes and subtasks (subtasks come back unticked).
+This is the Apple Reminders model, and it means your completed history stays
+intact instead of one row quietly hopping forward forever. An occurrence you
+*don't* finish stays where it is and goes overdue rather than skipping ahead
+on its own — if you want to move past one without completing it, use
+**Skip this one**, which advances the date and doesn't spend an occurrence
+from an "after N times" budget.
+
+**Custom rules** cover: every N days / weeks / months / years; specific
+weekdays for weekly rules; "the 14th" vs. "the second Tuesday" for monthly
+ones; counting the next date from the scheduled date or from the day you
+actually finished it; and ending never, on a date, or after a set number of
+times. The picker always shows a plain-English summary of what you've set
+("Every 2 weeks on Mon, Wed · until Dec 1").
+
+**In Apple Calendar**, a repeating meeting is published as a single event
+carrying a standard `RRULE`, so Calendar expands the series itself. The one
+exception is a rule counted from the completion date — that isn't a fixed
+schedule, so only the current occurrence is published.
+
+The date maths lives in `src/lib/recurrence.js` and is covered by
+`npm test` (leap years, month-end clamping, DST, the nth-weekday-of-month
+edge where a month has only four).
 
 ## One honest limitation up front
 
@@ -53,10 +88,15 @@ dedicated free scheduler like cron-job.org pointed at the same URL — same
    `supabase/schema.sql` from this project and run it. This creates the
    tables, locks each user to their own rows (Row Level Security), and turns
    on Realtime for live sync.
-   - **Already deployed this before v2?** Don't re-run `schema.sql` — instead
-     run `supabase/migration_002_smart_lists.sql`, which only *adds* the new
-     columns (due time, priority, flagged, notes, subtasks) without touching
-     any existing data.
+   - **Already deployed an earlier version?** Don't re-run `schema.sql` —
+     run the migrations you're missing instead. Each only *adds* columns and
+     leaves existing data alone, and they're safe to re-run:
+     - `supabase/migration_002_smart_lists.sql` — due time, priority, flagged,
+       notes, subtasks.
+     - `supabase/migration_003_recurrence.sql` — the `repeat_rule` column on
+       tasks/reminders/meetings, plus `user_settings.timezone`. **Required for
+       repeating items to work**, and it's what lets notifications fire on your
+       clock rather than the server's.
 5. **Authentication → Providers**: Email is on by default. If you'd rather
    skip email confirmation while you're testing solo, go to
    **Authentication → Settings** and turn off "Confirm email" — turn it back
@@ -141,6 +181,7 @@ This prints a **Public Key** and a **Private Key**. Save both.
 npm install
 cp .env.example .env      # fill in the VITE_ values
 npm run dev
+npm test                  # recurrence + timezone maths (no network, no DB)
 ```
 
 The `/api` functions won't run under plain `vite dev` — use `vercel dev`
@@ -160,10 +201,18 @@ notification endpoint locally.
   auth headers. Treat that URL like a password — anyone with it can read
   your meeting titles/locations. You can invalidate it any time by rotating
   `ics_token` in the `user_settings` table.
-- View preference (tabs vs. stacked) is stored per-device in `localStorage`,
-  not synced — that's a UI setting, not your data.
-- **Known gap**: the notification job still checks reminders once per day
-  (due-today / overdue), not against `due_time` the way meetings get a
-  precise 30-minute-before heads-up. If you want reminders to fire at their
-  exact time too, that's a small change to `api/notifications/check.js` — ask
-  and I'll add it.
+- View preference (tabs vs. stacked), the theme, and the last open section are
+  stored per-device in `localStorage`, not synced — those are UI settings, not
+  your data.
+- **Timezones**: meetings and reminders are stored as a bare date and time with
+  no offset, and the notification job runs on a UTC server. Your browser records
+  its IANA timezone into `user_settings.timezone` on each sign-in, and the job
+  uses it to read a stored 9am as *your* 9am. Without it, "30 minutes before"
+  was off by your whole UTC offset and "due today" used the wrong day for part
+  of every day.
+- **Styling** is one stylesheet, `src/index.css`. Media queries, hover-vs-touch
+  rules, `env(safe-area-inset-*)` and dark mode can't be expressed as inline
+  style objects, and those are exactly what make the app work on a phone.
+- **Reminder timing**: a reminder with a time of day is announced near that
+  time; one without waits until 8am your time rather than pinging at local
+  midnight. Either way it's announced at most once per day.

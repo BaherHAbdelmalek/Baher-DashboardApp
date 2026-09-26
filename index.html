@@ -2,23 +2,38 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- viewport-fit=cover lets the app paint into the notch/home-indicator
+         area; index.css pads it back out with env(safe-area-inset-*). -->
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Baher — Dashboard</title>
+    <meta name="description" content="Tasks, meetings and reminders, synced across your devices." />
 
     <link rel="manifest" href="/manifest.webmanifest" />
-    <meta name="theme-color" content="#2C5F8A" />
+    <!-- Kept in sync at runtime by src/lib/theme.js when the theme is switched. -->
+    <meta name="theme-color" content="#f7f6f3" />
+    <meta name="color-scheme" content="light dark" />
+
+    <!-- Paints the page background before React mounts, so there's no white
+         flash on a dark-themed phone. -->
     <style>
-      html, body { background: #F7F6F3; margin: 0; padding: 0; min-height: 100%; }
+      html, body { margin: 0; padding: 0; min-height: 100%; background: #f7f6f3; }
+      @media (prefers-color-scheme: dark) {
+        html:not([data-theme="light"]), html:not([data-theme="light"]) body { background: #14161a; }
+      }
+      html[data-theme="dark"], html[data-theme="dark"] body { background: #14161a; }
     </style>
 
-    <!-- iOS home-screen behavior -->
+    <!-- iOS home-screen behaviour -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Dashboard" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <link rel="icon" href="/icons/icon-192.png" />
   </head>
   <body>
     <div id="root"></div>
+    <noscript>This dashboard needs JavaScript enabled.</noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

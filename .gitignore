@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.vercel/
+
+# Real secrets. .env.example is the template that IS committed.
+.env
+.env.local
+.env.*.local
+
+.DS_Store
+*.log
