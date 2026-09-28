@@ -1,0 +1,919 @@
+/* ============================================================================
+   Baher Dashboard — design system
+   ----------------------------------------------------------------------------
+   One stylesheet instead of inline style objects, because the things that make
+   an app feel right on a phone, an iPad and a laptop (media queries, hover vs.
+   touch, safe-area insets, dark mode, :focus-visible) can only be expressed in
+   real CSS.
+   ========================================================================== */
+
+/* ---------- tokens ---------- */
+:root {
+  --bg: #f7f6f3;
+  --bg-raised: #ffffff;
+  --bg-sunken: #fcfbf9;
+  --bg-input: #ffffff;
+  --border: #e4e2dd;
+  --border-strong: #d3d6da;
+  --text: #1c2024;
+  --text-muted: #5f6672;
+  --text-faint: #8b9099;
+  --accent: #2c5f8a;
+  --accent-hover: #234b6e;
+  --accent-soft: #eaf1f7;
+  --danger: #b5462a;
+  --danger-soft: #fceeea;
+  --danger-text: #8f3517;
+  --warn: #9a6d12;
+  --ok: #35604a;
+
+  --radius: 10px;
+  --radius-sm: 7px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(20, 24, 30, 0.05);
+  --shadow-md: 0 4px 16px rgba(20, 24, 30, 0.09);
+  --shadow-lg: 0 12px 36px rgba(20, 24, 30, 0.16);
+
+  /* Minimum comfortable hit target. 44px is Apple's HIG floor; we use it on
+     touch pointers and allow denser controls where there's a real mouse. */
+  --tap: 44px;
+  --control-h: 38px;
+
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+
+  /* Safe-area insets, defaulted to 0 where unsupported. */
+  --sa-t: env(safe-area-inset-top, 0px);
+  --sa-r: env(safe-area-inset-right, 0px);
+  --sa-b: env(safe-area-inset-bottom, 0px);
+  --sa-l: env(safe-area-inset-left, 0px);
+
+  --nav-h: 0px;
+
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14161a;
+    --bg-raised: #1c1f25;
+    --bg-sunken: #191c21;
+    --bg-input: #21252c;
+    --border: #2c3138;
+    --border-strong: #3a4048;
+    --text: #eceef1;
+    --text-muted: #a3aab4;
+    --text-faint: #757d88;
+    --accent: #7ab3e0;
+    --accent-hover: #9ac8ec;
+    --accent-soft: #1d2c3a;
+    --danger: #e98f72;
+    --danger-soft: #38211a;
+    --danger-text: #f0b6a1;
+    --warn: #dcb05a;
+    --ok: #7fbd9c;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
+    --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.55);
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #14161a;
+  --bg-raised: #1c1f25;
+  --bg-sunken: #191c21;
+  --bg-input: #21252c;
+  --border: #2c3138;
+  --border-strong: #3a4048;
+  --text: #eceef1;
+  --text-muted: #a3aab4;
+  --text-faint: #757d88;
+  --accent: #7ab3e0;
+  --accent-hover: #9ac8ec;
+  --accent-soft: #1d2c3a;
+  --danger: #e98f72;
+  --danger-soft: #38211a;
+  --danger-text: #f0b6a1;
+  --warn: #dcb05a;
+  --ok: #7fbd9c;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.55);
+}
+
+/* ---------- reset ---------- */
+* { box-sizing: border-box; }
+
+html {
+  /* Stops iOS from bumping text size when you rotate to landscape. */
+  -webkit-text-size-adjust: 100%;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--bg);
+}
+
+body {
+  font-family: var(--font);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  /* Kill the grey flash on tap; we draw our own :active states. */
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+button, input, select, textarea { font-family: inherit; color: inherit; }
+button { -webkit-appearance: none; appearance: none; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+:focus:not(:focus-visible) { outline: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================================================
+   App shell
+   ========================================================================== */
+.app {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-bottom: calc(var(--nav-h) + var(--sa-b) + 28px);
+}
+
+.app__inner {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 0 max(16px, var(--sa-l)) 0 max(16px, var(--sa-l));
+  padding-right: max(16px, var(--sa-r));
+}
+
+/* --- header --- */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: saturate(180%) blur(12px);
+  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding-top: var(--sa-t);
+}
+/* color-mix is widely supported now, but fall back to opaque where it isn't. */
+@supports not (background: color-mix(in srgb, red 50%, transparent)) {
+  .header { background: var(--bg); }
+}
+
+.header__inner {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 10px max(16px, var(--sa-r)) 10px max(16px, var(--sa-l));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.header__title { font-size: 17px; font-weight: 650; letter-spacing: -0.01em; }
+.header__sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.header__actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+
+/* ============================================================================
+   Controls
+   ========================================================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: var(--control-h);
+  padding: 0 13px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-raised);
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s, color 0.14s;
+  white-space: nowrap;
+  user-select: none;
+}
+.btn:active { transform: translateY(0.5px); }
+.btn--on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.btn--square { padding: 0; width: var(--control-h); }
+.btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+}
+.btn--ghost { border-color: transparent; background: transparent; }
+.btn--danger { color: var(--danger); border-color: var(--danger); }
+.btn:disabled { opacity: 0.5; cursor: default; }
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn--on:hover { background: var(--accent-soft); }
+  .btn--primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: #fff; }
+  .btn--ghost:hover { background: var(--accent-soft); border-color: transparent; }
+  .btn--danger:hover { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+}
+
+/* Touch devices get full-size targets even for the small round buttons. */
+@media (hover: none) {
+  .btn { min-height: var(--tap); padding: 0 15px; }
+  .btn--square { width: var(--tap); }
+}
+
+/* Inputs: 16px font is deliberate — anything smaller makes iOS Safari zoom the
+   whole page in when the field takes focus, which is jarring and hard to undo. */
+.field {
+  width: 100%;
+  min-height: var(--control-h);
+  padding: 0 11px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  font-size: 16px;
+  line-height: normal;
+}
+textarea.field { padding: 9px 11px; min-height: 76px; resize: vertical; line-height: 1.45; }
+select.field {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 30px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b9099' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+/* Date/time inputs on iOS render their own control; stop it overflowing. */
+input[type="date"].field,
+input[type="time"].field { min-width: 0; }
+.field:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
+.field::placeholder { color: var(--text-faint); }
+
+@media (hover: none) {
+  .field { min-height: var(--tap); }
+}
+
+.field-group { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.field-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.check-input {
+  width: 19px;
+  height: 19px;
+  accent-color: var(--accent);
+  flex-shrink: 0;
+  margin: 0;
+}
+
+/* ============================================================================
+   Chips / filter rows
+   ========================================================================== */
+.chiprow {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-raised);
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.14s, border-color 0.14s, color 0.14s;
+}
+.chip--on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.chip__count { font-family: var(--mono); font-size: 11px; color: var(--text-faint); }
+.chip--on .chip__count { color: var(--accent); }
+@media (hover: hover) and (pointer: fine) { .chip:hover { border-color: var(--accent); } }
+@media (hover: none) { .chip { min-height: 38px; padding: 0 14px; } }
+
+/* A horizontally scrollable row for narrow screens — better than wrapping
+   filter chips onto four lines and pushing the list off-screen. */
+.chiprow--scroll {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  /* bleed to the screen edges so scrolled content isn't clipped mid-chip */
+  margin-left: calc(-1 * max(16px, var(--sa-l)));
+  margin-right: calc(-1 * max(16px, var(--sa-r)));
+  padding-left: max(16px, var(--sa-l));
+  padding-right: max(16px, var(--sa-r));
+}
+.chiprow--scroll::-webkit-scrollbar { display: none; }
+.chiprow--scroll > * { scroll-snap-align: start; }
+
+.togglelabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  min-height: 32px;
+  white-space: nowrap;
+}
+.togglelabel--boxed {
+  padding: 0 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--bg-raised);
+}
+/* The box itself stays 19px — a 44px checkbox looks absurd — so the label
+   wrapping it is what gets sized up, since that is the real target. */
+@media (hover: none) {
+  .togglelabel { min-height: var(--tap); }
+  .togglelabel--boxed { padding: 0 15px; }
+}
+
+.push-right { margin-left: auto; }
+
+/* ============================================================================
+   Tabs (desktop / iPad) and bottom nav (phone)
+   ========================================================================== */
+.tabbar {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 18px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.tabbar::-webkit-scrollbar { display: none; }
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 15px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 14px;
+  font-weight: 550;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.14s, border-color 0.14s;
+}
+.tab--on { color: var(--accent); border-bottom-color: var(--accent); }
+.tab__count { font-family: var(--mono); font-size: 11.5px; color: var(--text-faint); }
+@media (hover: hover) and (pointer: fine) { .tab:hover { color: var(--accent); } }
+
+.bottomnav { display: none; }
+
+/* ============================================================================
+   Sections, cards, list items
+   ========================================================================== */
+.sections { display: flex; flex-direction: column; gap: 30px; }
+
+.section__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 650;
+  margin-bottom: 12px;
+}
+.section__count {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--text-faint);
+  font-weight: 400;
+}
+
+.panel {
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.list { display: flex; flex-direction: column; gap: 8px; }
+
+.group-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-faint);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 14px 0 6px;
+}
+.group-header:first-child { margin-top: 0; }
+
+.empty {
+  font-size: 13.5px;
+  color: var(--text-faint);
+  padding: 22px 4px;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 10px 10px 11px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.14s;
+}
+.item--done { background: var(--bg-sunken); box-shadow: none; }
+@media (hover: hover) and (pointer: fine) {
+  .item:hover { border-color: var(--border-strong); }
+}
+
+.item__check {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-strong);
+  background: var(--bg-input);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  flex-shrink: 0;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.12s, border-color 0.12s, background 0.12s;
+}
+@media (hover: hover) and (pointer: fine) {
+  .item__check:hover { border-color: var(--accent); color: var(--accent); }
+}
+.item__check--done { border-color: var(--border-strong); color: var(--text-faint); }
+
+/* Ticking something off is the single most-used action in the app, and a 22px
+   circle is half of Apple's 44px minimum. Rather than draw a clumsy oversized
+   circle, extend the *hit* area past the visible edge — same look, thumb-sized
+   target. Same trick for subtask ticks and the row icon buttons. */
+@media (hover: none) {
+  .item__check, .subtask__check { position: relative; }
+  .item__check::after,
+  .subtask__check::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--tap);
+    height: var(--tap);
+    transform: translate(-50%, -50%);
+  }
+}
+
+.item__body { flex: 1; min-width: 0; }
+.item__title { font-size: 14.5px; line-height: 1.35; overflow-wrap: anywhere; }
+.item__title--done { text-decoration: line-through; color: var(--text-faint); }
+.item__meta {
+  font-size: 11.5px;
+  color: var(--text-faint);
+  margin-top: 3px;
+  font-family: var(--mono);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 7px;
+}
+.item__meta svg { vertical-align: -1px; }
+.item__meta .badge { margin-top: 0; }
+
+.item__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+  margin-left: auto;
+  align-self: flex-start;
+}
+/* A fixed lane keeps the date pills in a straight column down the list even
+   though rows carry different numbers of buttons (only repeating items get
+   "skip"). Without it every pill sits at its own x. */
+@media (min-width: 720px) { .item__actions { min-width: 126px; } }
+
+.iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text-faint);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: background 0.14s, color 0.14s;
+}
+@media (hover: hover) and (pointer: fine) {
+  .iconbtn:hover { background: var(--accent-soft); color: var(--accent); }
+  .iconbtn--danger:hover { background: var(--danger-soft); color: var(--danger); }
+}
+/* Not the full 44px: these sit 2px apart in a row, and an overflowing hit area
+   would swallow taps meant for the button beside it. 40px is the widest that
+   stays in its own lane. */
+@media (hover: none) { .iconbtn { width: 40px; height: 40px; } }
+.iconbtn--on { color: var(--warn); }
+
+/* The old build faded the delete button in on :hover — which means it could
+   never be tapped on a phone or iPad. Only hide it where a real cursor exists. */
+@media (hover: hover) and (pointer: fine) {
+  .item .reveal { opacity: 0; transition: opacity 0.14s; }
+  .item:hover .reveal,
+  .item:focus-within .reveal { opacity: 1; }
+}
+
+.badge {
+  font-size: 11px;
+  font-family: var(--mono);
+  border: 1px solid;
+  border-radius: var(--radius-pill);
+  padding: 2px 8px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  align-self: flex-start;
+  margin-top: 1px;
+}
+.badge--now { color: var(--danger); border-color: var(--danger); }
+.badge--soon { color: var(--warn); border-color: var(--warn); }
+.badge--later { color: var(--ok); border-color: var(--ok); }
+.badge--none { color: var(--text-faint); border-color: var(--border-strong); }
+
+.priority-mark { font-family: var(--mono); font-size: 12px; font-weight: 800; margin-left: 6px; }
+.priority-mark--low { color: var(--ok); }
+.priority-mark--medium { color: var(--warn); }
+.priority-mark--high { color: var(--danger); }
+
+.done-section { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px; }
+.done-section__header {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-faint);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* ============================================================================
+   Add form
+   ========================================================================== */
+.addform {
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  margin-bottom: 16px;
+}
+.addform__top { display: flex; gap: 8px; align-items: stretch; }
+.addform__top .field { flex: 1; min-width: 0; }
+.addform__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+.addform__detailsbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  cursor: pointer;
+  padding: 8px 2px 2px;
+  margin-top: 4px;
+  min-height: 30px;
+}
+@media (hover: none) { .addform__detailsbtn { min-height: var(--tap); } }
+@media (hover: hover) and (pointer: fine) { .addform__detailsbtn:hover { color: var(--accent); } }
+
+/* ============================================================================
+   Expanded / detail panel
+   ========================================================================== */
+.detail {
+  margin: -2px 0 6px;
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  background: var(--bg-sunken);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.detail__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+.detail__label { font-size: 11px; font-weight: 700; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+.detail__footer { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.subtask { display: flex; align-items: center; gap: 9px; padding: 3px 0; }
+.subtask__check {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--bg-input);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  flex-shrink: 0;
+  cursor: pointer;
+  padding: 0;
+}
+.subtask__check--done { color: var(--text-muted); }
+.subtask__title { font-size: 13.5px; flex: 1; overflow-wrap: anywhere; }
+.subtask__title--done { text-decoration: line-through; color: var(--text-faint); }
+.subtask__add { display: flex; gap: 7px; margin-top: 8px; }
+.subtask__add .field { flex: 1; }
+
+/* ============================================================================
+   Repeat editor
+   ========================================================================== */
+.repeat { display: flex; flex-direction: column; gap: 10px; }
+.repeat__row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.repeat__row .field { width: auto; flex: 0 1 auto; }
+.repeat__interval { width: 74px; text-align: center; }
+.repeat__inline-label { font-size: 13px; color: var(--text-muted); }
+.repeat__days { display: flex; gap: 5px; flex-wrap: wrap; }
+.repeat__day {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-raised);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+.repeat__day--on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.repeat__summary {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  background: var(--accent-soft);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  line-height: 1.5;
+}
+.repeat__summary svg { flex-shrink: 0; margin-top: 2px; }
+
+/* ============================================================================
+   Banners, settings, auth
+   ========================================================================== */
+.banner {
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 13px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  line-height: 1.5;
+}
+.banner--error { background: var(--danger-soft); color: var(--danger-text); }
+.banner--info { background: var(--accent-soft); color: var(--accent); }
+.banner__close { margin-left: auto; }
+
+.settings { display: flex; flex-direction: column; gap: 20px; }
+.settings__group-title { font-size: 14px; font-weight: 650; margin-bottom: 5px; }
+.settings__hint { font-size: 12.5px; color: var(--text-muted); line-height: 1.55; }
+.settings__row { display: flex; gap: 8px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+.urlbox {
+  flex: 1 1 240px;
+  min-width: 0;
+  padding: 9px 10px;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  overflow-wrap: anywhere;
+}
+
+.auth {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(24px, var(--sa-t)) max(16px, var(--sa-r)) max(24px, var(--sa-b)) max(16px, var(--sa-l));
+}
+.auth__card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 26px;
+  box-shadow: var(--shadow-md);
+}
+.auth__title { font-size: 20px; font-weight: 650; margin-bottom: 4px; }
+.auth__sub { font-size: 13.5px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
+.auth__form { display: flex; flex-direction: column; gap: 10px; }
+.auth__submit { width: 100%; min-height: 46px; font-size: 15px; }
+.auth__switch { font-size: 13px; color: var(--text-muted); margin-top: 18px; text-align: center; line-height: 1.7; }
+.auth__link {
+  color: var(--accent);
+  font-weight: 600;
+  background: none;
+  border: none;
+  padding: 2px 0;
+  cursor: pointer;
+  font-size: inherit;
+}
+@media (hover: hover) and (pointer: fine) { .auth__link:hover { text-decoration: underline; } }
+
+/* ============================================================================
+   Skeleton loading
+   ========================================================================== */
+.skeleton { display: flex; flex-direction: column; gap: 10px; }
+.skeleton__bar {
+  height: 52px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(90deg, var(--bg-sunken) 25%, var(--border) 50%, var(--bg-sunken) 75%);
+  background-size: 300% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 150% 0; }
+  100% { background-position: -150% 0; }
+}
+
+/* ============================================================================
+   Layout: iPad and up — two columns in stacked view so the wide screen isn't
+   one long ribbon of text down the middle.
+   ========================================================================== */
+@media (min-width: 900px) {
+  .sections--stacked {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px 26px;
+    align-items: start;
+  }
+  /* Tasks is the primary list, so it gets the full width above the other two. */
+  .sections--stacked > :first-child:not(:only-child) { grid-column: 1 / -1; }
+}
+
+/* ============================================================================
+   Layout: phone — bottom tab bar, tighter spacing, full-width add button
+   ========================================================================== */
+@media (max-width: 719px) {
+  :root { --nav-h: 56px; }
+
+  .header__inner { padding-top: 8px; padding-bottom: 8px; }
+  .header__title { font-size: 16px; }
+
+  .sections { gap: 26px; }
+  .section__header { font-size: 14.5px; }
+
+  /* The top tab bar is replaced by the thumb-reachable bottom nav. */
+  .tabbar { display: none; }
+
+  .bottomnav {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    background: color-mix(in srgb, var(--bg-raised) 92%, transparent);
+    backdrop-filter: saturate(180%) blur(14px);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    border-top: 1px solid var(--border);
+    padding-bottom: var(--sa-b);
+    padding-left: var(--sa-l);
+    padding-right: var(--sa-r);
+  }
+  @supports not (background: color-mix(in srgb, red 50%, transparent)) {
+    .bottomnav { background: var(--bg-raised); }
+  }
+  .bottomnav__btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-height: var(--nav-h);
+    background: none;
+    border: none;
+    color: var(--text-faint);
+    font-size: 10.5px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 2px;
+    position: relative;
+  }
+  .bottomnav__btn--on { color: var(--accent); }
+  .bottomnav__badge {
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    margin-left: 7px;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 16px;
+    text-align: center;
+    padding: 0 3px;
+  }
+
+  /* One column, full-bleed-ish controls. */
+  .addform__grid { grid-template-columns: 1fr 1fr; }
+  .addform__grid > .field-group--wide { grid-column: 1 / -1; }
+  .detail__grid { grid-template-columns: 1fr 1fr; }
+  .detail__grid > .field-group--wide { grid-column: 1 / -1; }
+
+  .auth__card { padding: 22px; border-radius: 12px; }
+
+  /* Header gets crowded fast at 360px — drop the labels, keep the icons. */
+  .hide-phone { display: none !important; }
+}
+
+@media (max-width: 400px) {
+  .addform__grid { grid-template-columns: 1fr; }
+  .detail__grid { grid-template-columns: 1fr; }
+  .item__title { font-size: 14px; }
+}
+
+/* Landscape phone: the sticky header eats too much of a 375px-tall viewport. */
+@media (max-height: 460px) and (orientation: landscape) {
+  .header { position: static; }
+}
+
+/* Print: just the lists, please. */
+@media print {
+  .header, .bottomnav, .addform, .chiprow, .tabbar, .item__actions { display: none !important; }
+  .app { padding: 0; }
+  .item { break-inside: avoid; box-shadow: none; }
+}

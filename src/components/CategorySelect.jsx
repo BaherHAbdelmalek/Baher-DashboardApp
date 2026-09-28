@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { styles } from "../styles";
+import { Check, X } from "lucide-react";
 
 // A real <select> dropdown (works everywhere, including iPhone Safari) with
 // a built-in "add a new one" option — <datalist> looks fine on desktop but
@@ -9,30 +9,39 @@ export default function CategorySelect({ value, onChange, projects }) {
   const [adding, setAdding] = useState(false);
   const [draft, setDraft] = useState("");
 
+  function commit() {
+    if (draft.trim()) onChange(draft.trim());
+    setAdding(false);
+    setDraft("");
+  }
+
   if (adding) {
     return (
-      <div style={styles.categoryAddRow}>
+      <div className="repeat__row">
         <input
-          className="bh-input"
-          style={styles.projectInput}
-          placeholder="New category name"
+          className="field"
+          style={{ flex: 1 }}
+          placeholder="New category"
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            // Inside a <form>, Enter would otherwise submit the whole thing.
+            if (e.key === "Enter") { e.preventDefault(); commit(); }
+            if (e.key === "Escape") { setAdding(false); setDraft(""); }
+          }}
           autoFocus
+          aria-label="New category name"
         />
+        <button type="button" className="iconbtn" onClick={commit} aria-label="Save category">
+          <Check size={16} />
+        </button>
         <button
           type="button"
-          style={styles.subtaskAddBtn}
-          onClick={() => {
-            if (draft.trim()) onChange(draft.trim());
-            setAdding(false);
-            setDraft("");
-          }}
+          className="iconbtn"
+          onClick={() => { setAdding(false); setDraft(""); }}
+          aria-label="Cancel"
         >
-          Add
-        </button>
-        <button type="button" style={styles.subtaskAddBtn} onClick={() => { setAdding(false); setDraft(""); }}>
-          Cancel
+          <X size={16} />
         </button>
       </div>
     );
@@ -42,13 +51,13 @@ export default function CategorySelect({ value, onChange, projects }) {
 
   return (
     <select
-      className="bh-select"
-      style={styles.projectInput}
+      className="field"
       value={value}
       onChange={(e) => {
         if (e.target.value === "__add__") setAdding(true);
         else onChange(e.target.value);
       }}
+      aria-label="Category"
     >
       {options.map((p) => <option key={p} value={p}>{p}</option>)}
       <option value="__add__">+ Add new category…</option>

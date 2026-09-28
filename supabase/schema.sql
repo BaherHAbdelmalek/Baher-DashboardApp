@@ -8,6 +8,9 @@ create extension if not exists pgcrypto;
 create table if not exists public.user_settings (
   user_id uuid primary key references auth.users(id) on delete cascade,
   ics_token uuid not null default gen_random_uuid(),
+  -- IANA zone (e.g. 'Australia/Sydney'), filled in by the app from the browser.
+  -- The notification job needs it to read a stored 9am as the user's 9am.
+  timezone text,
   created_at timestamptz not null default now()
 );
 
@@ -23,6 +26,9 @@ create table if not exists public.tasks (
   flagged boolean not null default false,
   notes text,
   subtasks jsonb not null default '[]'::jsonb,
+  -- Repeat rule, or NULL for "does not repeat". See src/lib/recurrence.js for
+  -- the shape, and migration_003_recurrence.sql for the annotated version.
+  repeat_rule jsonb check (repeat_rule is null or jsonb_typeof(repeat_rule) = 'object'),
   status text not null default 'todo' check (status in ('todo','done')),
   created_at timestamptz not null default now()
 );
@@ -35,6 +41,7 @@ create table if not exists public.meetings (
   date date,
   time time,
   location text,
+  repeat_rule jsonb check (repeat_rule is null or jsonb_typeof(repeat_rule) = 'object'),
   status text not null default 'upcoming' check (status in ('upcoming','done')),
   notified_at timestamptz,
   created_at timestamptz not null default now()
@@ -51,6 +58,7 @@ create table if not exists public.reminders (
   flagged boolean not null default false,
   notes text,
   subtasks jsonb not null default '[]'::jsonb,
+  repeat_rule jsonb check (repeat_rule is null or jsonb_typeof(repeat_rule) = 'object'),
   status text not null default 'todo' check (status in ('todo','done')),
   notified_on date,
   created_at timestamptz not null default now()
@@ -97,6 +105,11 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- Narrow the work the "Repeating" smart list and the calendar feed have to do.
+create index if not exists tasks_repeat_rule_idx     on public.tasks     (user_id) where repeat_rule is not null;
+create index if not exists reminders_repeat_rule_idx on public.reminders (user_id) where repeat_rule is not null;
+create index if not exists meetings_repeat_rule_idx  on public.meetings  (user_id) where repeat_rule is not null;
 
 -- Turn on Realtime for the tables the app needs to sync live across devices.
 -- (If this errors saying the table's already in the publication, that's fine —

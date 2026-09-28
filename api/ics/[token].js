@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { createEvents } from "ics";
+import { toRRule } from "../../src/lib/recurrence.js";
 
 // Public, unauthenticated endpoint (by design — Apple Calendar's subscription
 // feature can't send login headers). Security comes from the token being a
@@ -8,6 +9,12 @@ export default async function handler(req, res) {
   const { token } = req.query;
   if (!token) {
     res.status(400).send("Missing token");
+    return;
+  }
+  // Fail fast on a malformed token rather than sending garbage to Postgres,
+  // where a non-uuid value makes the query error instead of simply not matching.
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(token)) {
+    res.status(404).send("Unknown calendar token");
     return;
   }
 
@@ -20,7 +27,7 @@ export default async function handler(req, res) {
     .from("user_settings")
     .select("user_id")
     .eq("ics_token", token)
-    .single();
+    .maybeSingle();
 
   if (settingsErr || !settings) {
     res.status(404).send("Unknown calendar token");
@@ -46,20 +53,48 @@ export default async function handler(req, res) {
         const [hh, mm] = m.time.split(":").map(Number);
         h = hh; min = mm;
       }
+
+      // A repeating meeting goes out as ONE event carrying an RRULE, so Calendar
+      // expands the series natively (and honours a later edit to the rule).
+      // Rules counted from the completion date have no fixed schedule, so
+      // toRRule returns null and only this occurrence is published.
+      const rrule = toRRule(m.repeat_rule, m.date);
+
       return {
         uid: `${m.id}@baher-dashboard`,
         title: m.title,
         start: [y, mo, d, h, min],
+        // A meeting is stored as wall-clock date + time with no timezone, so it
+        // has to go out as floating local time. Left to itself the ics library
+        // stamps a Z on DTSTART, which made a 9:30am meeting land at 9:30 UTC —
+        // i.e. the wrong hour in Apple Calendar for anyone outside UTC. It also
+        // keeps DTSTART and the RRULE's UNTIL in the same form, as RFC 5545
+        // requires.
+        startInputType: "local",
+        startOutputType: "local",
         duration: { hours: 1 },
         location: m.location || undefined,
-        description: `Project: ${m.project}`,
-        alarms: [{ action: "display", trigger: { minutes: 30, before: true } }],
-        status: m.status === "done" ? "CONFIRMED" : "CONFIRMED",
+        description: `Category: ${m.project}`,
+        alarms: [{ action: "display", description: m.title, trigger: { minutes: 30, before: true } }],
+        status: "CONFIRMED",
+        ...(rrule ? { recurrenceRule: rrule } : {}),
       };
     });
 
+  if (events.length === 0) {
+    // createEvents([]) produces nothing usable; an empty but valid calendar is
+    // what Apple Calendar expects for a feed with no events yet.
+    res.setHeader("Content-Type", "text/calendar; charset=utf-8");
+    res.setHeader("Cache-Control", "no-store");
+    res
+      .status(200)
+      .send("BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//baher-dashboard//EN\r\nCALSCALE:GREGORIAN\r\nEND:VCALENDAR\r\n");
+    return;
+  }
+
   const { error: icsErr, value } = createEvents(events);
   if (icsErr) {
+    console.error("ics build failed", icsErr);
     res.status(500).send("Could not build calendar feed");
     return;
   }

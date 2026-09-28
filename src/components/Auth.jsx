@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
-import { styles } from "../styles";
 
 export default function Auth() {
   const [mode, setMode] = useState("signin"); // 'signin' | 'signup' | 'reset'
@@ -9,6 +8,12 @@ export default function Auth() {
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
   const [busy, setBusy] = useState(false);
+
+  function go(next) {
+    setMode(next);
+    setError(null);
+    setNotice(null);
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -24,7 +29,9 @@ export default function Auth() {
         if (err) throw err;
         setNotice("Account created. Check your email to confirm it, then sign in.");
       } else if (mode === "reset") {
-        const { error: err } = await supabase.auth.resetPasswordForEmail(email);
+        const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin,
+        });
         if (err) throw err;
         setNotice("Password reset email sent — check your inbox.");
       }
@@ -35,74 +42,76 @@ export default function Auth() {
     }
   }
 
+  const heading = mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Reset password";
+
   return (
-    <div style={styles.authWrap}>
-      <div style={styles.authCard}>
-        <div style={styles.authTitle}>
-          {mode === "signin" ? "Sign in" : mode === "signup" ? "Create account" : "Reset password"}
-        </div>
-        <div style={styles.authSub}>
+    <main className="auth">
+      <div className="auth__card">
+        <h1 className="auth__title">{heading}</h1>
+        <p className="auth__sub">
           {mode === "signin" && "Tasks, meetings, and reminders synced across your devices."}
           {mode === "signup" && "Your data stays private to your account."}
           {mode === "reset" && "We'll email you a link to reset it."}
-        </div>
+        </p>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="auth__form">
           <input
-            style={styles.authField}
+            className="field"
             type="email"
+            name="email"
             placeholder="Email"
+            autoComplete="email"
+            inputMode="email"
+            autoCapitalize="none"
+            spellCheck="false"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            aria-label="Email"
             required
           />
           {mode !== "reset" && (
             <input
-              style={styles.authField}
+              className="field"
               type="password"
+              name="password"
               placeholder="Password"
+              // Tells iOS/Android password managers which flow this is, so they
+              // offer to save a new password instead of autofilling the old one.
+              autoComplete={mode === "signup" ? "new-password" : "current-password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              aria-label="Password"
               minLength={6}
               required
             />
           )}
-          {error && <div style={styles.authError}>{error}</div>}
-          <button style={styles.authBtn} type="submit" disabled={busy}>
+          {error && <div className="banner banner--error" role="alert">{error}</div>}
+          <button className="btn btn--primary auth__submit" type="submit" disabled={busy}>
             {busy ? "Working…" : mode === "signin" ? "Sign in" : mode === "signup" ? "Sign up" : "Send reset link"}
           </button>
         </form>
 
-        {notice && <div style={styles.authNotice}>{notice}</div>}
+        {notice && <div className="banner banner--info" role="status" style={{ marginTop: 14, marginBottom: 0 }}>{notice}</div>}
 
-        <div style={styles.authSwitch}>
+        <div className="auth__switch">
           {mode === "signin" && (
             <>
-              No account?{" "}
-              <span style={styles.authLink} onClick={() => { setMode("signup"); setError(null); setNotice(null); }}>
-                Sign up
-              </span>{" "}
-              ·{" "}
-              <span style={styles.authLink} onClick={() => { setMode("reset"); setError(null); setNotice(null); }}>
-                Forgot password?
-              </span>
+              No account? <button type="button" className="auth__link" onClick={() => go("signup")}>Sign up</button>
+              {" · "}
+              <button type="button" className="auth__link" onClick={() => go("reset")}>Forgot password?</button>
             </>
           )}
           {mode === "signup" && (
             <>
               Already have an account?{" "}
-              <span style={styles.authLink} onClick={() => { setMode("signin"); setError(null); setNotice(null); }}>
-                Sign in
-              </span>
+              <button type="button" className="auth__link" onClick={() => go("signin")}>Sign in</button>
             </>
           )}
           {mode === "reset" && (
-            <span style={styles.authLink} onClick={() => { setMode("signin"); setError(null); setNotice(null); }}>
-              Back to sign in
-            </span>
+            <button type="button" className="auth__link" onClick={() => go("signin")}>Back to sign in</button>
           )}
         </div>
       </div>
-    </div>
+    </main>
   );
 }
