@@ -623,18 +623,28 @@ input[type="time"].field { min-width: 0; }
 .addform__top .field { flex: 1; min-width: 0; }
 .addform__grid {
   display: grid;
-  /* 150px was tight enough that Safari's native date/time control — which
-     reserves more shadow-DOM width for "mm/dd/yyyy" + the picker icon than
-     Chromium's does — could get squeezed past its own minimum and render on
-     top of the next cell instead of wrapping. 172px gives it breathing room
-     on every engine without costing more than one extra row at phone widths,
-     where a dedicated breakpoint below overrides this anyway. */
-  grid-template-columns: repeat(auto-fit, minmax(172px, 1fr));
+  /* Column floor is sized for compact fields (selects, short text) — 130px
+     lets Priority/Category/Location pair up on a phone instead of each
+     eating a full row. Native date/time controls don't fit that floor on
+     every engine (Safari's shadow-DOM control is wider than Chromium's), so
+     those fields opt out of the grid's column math entirely via
+     .field-group--full below rather than trying to size one floor that
+     works for both kinds of field. */
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 10px;
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px dashed var(--border);
 }
+/* Always takes the whole row, at every breakpoint — for date/time inputs
+   (so a native picker control never has to share a column with anything
+   and can't overlap a neighbor regardless of how many columns fit) and for
+   the Repeat editor (which needs the room). */
+.field-group--full,
+.field-group--wide { grid-column: 1 / -1; }
+/* A deliberately narrow field (a short select, a few-character input) that
+   shouldn't stretch to fill a wide column on its own. */
+.field-group--compact { max-width: 220px; }
 .addform__detailsbtn {
   display: inline-flex;
   align-items: center;
@@ -668,7 +678,7 @@ input[type="time"].field { min-width: 0; }
 .detail__grid {
   display: grid;
   /* Same floor as .addform__grid, same reason — see the comment there. */
-  grid-template-columns: repeat(auto-fit, minmax(172px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 10px;
 }
 .detail__label { font-size: 11px; font-weight: 700; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
@@ -895,16 +905,11 @@ input[type="time"].field { min-width: 0; }
     padding: 0 3px;
   }
 
-  /* One column, full-bleed-ish controls.
-     This used to hard-code 1fr 1fr here, which overrode the auto-fit/minmax
-     rule above and forced date+time into two ~155px columns on a 375-390px
-     phone — well under a native date/time control's real minimum width, so
-     it rendered on top of the next field. That's what the auto-fit floor
-     fix above couldn't touch, since this more specific rule always wins on
-     phone widths. Actually going to one column (as the comment always
-     claimed) lets each field take the full row instead. */
-  .addform__grid { grid-template-columns: 1fr; }
-  .detail__grid { grid-template-columns: 1fr; }
+  /* No column override here on purpose. Date/time opt out of the grid's
+     column math via .field-group--full (always full row, any breakpoint),
+     so the remaining compact fields (Priority, Category, Location) are
+     free to use the auto-fit/minmax(130px) rule above and pair up instead
+     of each claiming a full phone-width row. */
 
   .auth__card { padding: 22px; border-radius: 12px; }
 
@@ -913,8 +918,6 @@ input[type="time"].field { min-width: 0; }
 }
 
 @media (max-width: 400px) {
-  .addform__grid { grid-template-columns: 1fr; }
-  .detail__grid { grid-template-columns: 1fr; }
   .item__title { font-size: 14px; }
 }
 

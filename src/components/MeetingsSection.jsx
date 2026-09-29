@@ -130,19 +130,19 @@ export default function MeetingsSection({ items, insert, update, remove, project
 
         {showDetails && (
           <div className="addform__grid">
-            <div className="field-group">
+            <div className="field-group field-group--full">
               <label className="field-label" htmlFor="meeting-date">Date</label>
               <input id="meeting-date" className="field" type="date" value={form.date} onChange={(e) => setField("date", e.target.value)} />
             </div>
-            <div className="field-group">
+            <div className="field-group field-group--full">
               <label className="field-label" htmlFor="meeting-time">Time</label>
               <input id="meeting-time" className="field" type="time" value={form.time} onChange={(e) => setField("time", e.target.value)} />
             </div>
-            <div className="field-group">
+            <div className="field-group field-group--compact">
               <label className="field-label" htmlFor="meeting-loc">Location</label>
               <input id="meeting-loc" className="field" placeholder="Optional" value={form.location} onChange={(e) => setField("location", e.target.value)} />
             </div>
-            <div className="field-group">
+            <div className="field-group field-group--compact">
               <span className="field-label">Category</span>
               <CategorySelect value={form.project} onChange={(v) => setField("project", v)} projects={projects} />
             </div>
@@ -315,7 +315,7 @@ function MeetingDetail({ meeting: m, update, projects, canSkip, onSkip, onDelete
       </div>
 
       <div className="detail__grid">
-        <div className="field-group">
+        <div className="field-group field-group--full">
           <span className="field-label">Date</span>
           <input
             className="field"
@@ -325,7 +325,7 @@ function MeetingDetail({ meeting: m, update, projects, canSkip, onSkip, onDelete
             onChange={(e) => update(m.id, { date: e.target.value || null, notified_at: null })}
           />
         </div>
-        <div className="field-group">
+        <div className="field-group field-group--full">
           <span className="field-label">Time</span>
           <input
             className="field"
@@ -334,7 +334,7 @@ function MeetingDetail({ meeting: m, update, projects, canSkip, onSkip, onDelete
             onChange={(e) => update(m.id, { time: e.target.value || null, notified_at: null })}
           />
         </div>
-        <div className="field-group">
+        <div className="field-group field-group--compact">
           <span className="field-label">Location</span>
           <input
             className="field"
@@ -344,7 +344,7 @@ function MeetingDetail({ meeting: m, update, projects, canSkip, onSkip, onDelete
             placeholder="Optional"
           />
         </div>
-        <div className="field-group">
+        <div className="field-group field-group--compact">
           <span className="field-label">Category</span>
           <CategorySelect value={m.project} onChange={(v) => update(m.id, { project: v })} projects={projects} />
         </div>

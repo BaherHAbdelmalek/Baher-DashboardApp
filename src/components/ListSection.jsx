@@ -218,7 +218,7 @@ export default function ListSection({
 
         {showDetails && (
           <div className="addform__grid">
-            <div className="field-group">
+            <div className="field-group field-group--full">
               <label className="field-label" htmlFor={`${title}-date`}>Due date</label>
               <input
                 id={`${title}-date`}
@@ -228,7 +228,7 @@ export default function ListSection({
                 onChange={(e) => setField("date", e.target.value)}
               />
             </div>
-            <div className="field-group">
+            <div className="field-group field-group--full">
               <label className="field-label" htmlFor={`${title}-time`}>Time</label>
               <input
                 id={`${title}-time`}
@@ -238,7 +238,7 @@ export default function ListSection({
                 onChange={(e) => setField("time", e.target.value)}
               />
             </div>
-            <div className="field-group">
+            <div className="field-group field-group--compact">
               <label className="field-label" htmlFor={`${title}-priority`}>Priority</label>
               <select
                 id={`${title}-priority`}
@@ -249,7 +249,7 @@ export default function ListSection({
                 {PRIORITY_ORDER.map((p) => <option key={p} value={p}>{PRIORITY[p].label}</option>)}
               </select>
             </div>
-            <div className="field-group">
+            <div className="field-group field-group--compact">
               <span className="field-label">Category</span>
               <CategorySelect value={form.project} onChange={(v) => setField("project", v)} projects={projects} />
             </div>
@@ -469,7 +469,7 @@ function DetailPanel({ item, update, projects, canSkip, onSkip, onDelete, onClos
       </div>
 
       <div className="detail__grid">
-        <div className="field-group">
+        <div className="field-group field-group--full">
           <span className="field-label">Due date</span>
           <input
             className="field"
@@ -478,7 +478,7 @@ function DetailPanel({ item, update, projects, canSkip, onSkip, onDelete, onClos
             onChange={(e) => update(item.id, { due_date: e.target.value || null })}
           />
         </div>
-        <div className="field-group">
+        <div className="field-group field-group--full">
           <span className="field-label">Time</span>
           <input
             className="field"
@@ -487,7 +487,7 @@ function DetailPanel({ item, update, projects, canSkip, onSkip, onDelete, onClos
             onChange={(e) => update(item.id, { due_time: e.target.value || null })}
           />
         </div>
-        <div className="field-group">
+        <div className="field-group field-group--compact">
           <span className="field-label">Priority</span>
           <select
             className="field"
@@ -497,7 +497,7 @@ function DetailPanel({ item, update, projects, canSkip, onSkip, onDelete, onClos
             {PRIORITY_ORDER.map((p) => <option key={p} value={p}>{PRIORITY[p].label}</option>)}
           </select>
         </div>
-        <div className="field-group">
+        <div className="field-group field-group--compact">
           <span className="field-label">Category</span>
           <CategorySelect
             value={item.project}
