@@ -895,11 +895,16 @@ input[type="time"].field { min-width: 0; }
     padding: 0 3px;
   }
 
-  /* One column, full-bleed-ish controls. */
-  .addform__grid { grid-template-columns: 1fr 1fr; }
-  .addform__grid > .field-group--wide { grid-column: 1 / -1; }
-  .detail__grid { grid-template-columns: 1fr 1fr; }
-  .detail__grid > .field-group--wide { grid-column: 1 / -1; }
+  /* One column, full-bleed-ish controls.
+     This used to hard-code 1fr 1fr here, which overrode the auto-fit/minmax
+     rule above and forced date+time into two ~155px columns on a 375-390px
+     phone — well under a native date/time control's real minimum width, so
+     it rendered on top of the next field. That's what the auto-fit floor
+     fix above couldn't touch, since this more specific rule always wins on
+     phone widths. Actually going to one column (as the comment always
+     claimed) lets each field take the full row instead. */
+  .addform__grid { grid-template-columns: 1fr; }
+  .detail__grid { grid-template-columns: 1fr; }
 
   .auth__card { padding: 22px; border-radius: 12px; }
 
