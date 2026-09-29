@@ -623,7 +623,13 @@ input[type="time"].field { min-width: 0; }
 .addform__top .field { flex: 1; min-width: 0; }
 .addform__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  /* 150px was tight enough that Safari's native date/time control — which
+     reserves more shadow-DOM width for "mm/dd/yyyy" + the picker icon than
+     Chromium's does — could get squeezed past its own minimum and render on
+     top of the next cell instead of wrapping. 172px gives it breathing room
+     on every engine without costing more than one extra row at phone widths,
+     where a dedicated breakpoint below overrides this anyway. */
+  grid-template-columns: repeat(auto-fit, minmax(172px, 1fr));
   gap: 10px;
   margin-top: 12px;
   padding-top: 12px;
@@ -661,7 +667,8 @@ input[type="time"].field { min-width: 0; }
 }
 .detail__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  /* Same floor as .addform__grid, same reason — see the comment there. */
+  grid-template-columns: repeat(auto-fit, minmax(172px, 1fr));
   gap: 10px;
 }
 .detail__label { font-size: 11px; font-weight: 700; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
