@@ -2,116 +2,129 @@
    Baher Dashboard — design system
    ----------------------------------------------------------------------------
    One stylesheet instead of inline style objects, because the things that make
-   an app feel right on a phone, an iPad and a laptop (media queries, hover vs.
+   an app feel right on a phone, an iPad and a laptop (media queries, hover vs
    touch, safe-area insets, dark mode, :focus-visible) can only be expressed in
    real CSS.
+
+   Density is deliberate. An earlier pass gave every control a 44px minimum
+   height and dropped forms to a single column below 400px, which turned a
+   six-field panel on a 390px iPhone into 540px of scrolling. Tap targets still
+   meet 44px where you actually tap — buttons, checkboxes, rows — but text
+   fields sit at 40px and forms stay two-up, which is what Apple's own forms do.
    ========================================================================== */
 
 /* ---------- tokens ---------- */
 :root {
-  --bg: #f7f6f3;
+  --bg: #f4f3ef;
   --bg-raised: #ffffff;
-  --bg-sunken: #fcfbf9;
+  --bg-sunken: #ebe9e3;
   --bg-input: #ffffff;
-  --border: #e4e2dd;
-  --border-strong: #d3d6da;
-  --text: #1c2024;
-  --text-muted: #5f6672;
-  --text-faint: #8b9099;
+  --border: #dddbd4;
+  --border-strong: #c7c4bb;
+  --text: #16191d;
+  --text-muted: #4a505c;
+  --text-faint: #5c636f;
   --accent: #2c5f8a;
   --accent-hover: #234b6e;
-  --accent-soft: #eaf1f7;
+  --accent-soft: #e6eef6;
+  --accent-border: #a9c6de;
+  --on-accent: #ffffff;
   --danger: #b5462a;
-  --danger-soft: #fceeea;
+  --danger-soft: #fbeae5;
   --danger-text: #8f3517;
-  --warn: #9a6d12;
-  --ok: #35604a;
+  --warn: #8d6410;
+  --ok: #2f5a44;
 
-  --radius: 10px;
-  --radius-sm: 7px;
+  --radius: 12px;
+  --radius-sm: 8px;
   --radius-pill: 999px;
 
-  --shadow-sm: 0 1px 2px rgba(20, 24, 30, 0.05);
-  --shadow-md: 0 4px 16px rgba(20, 24, 30, 0.09);
-  --shadow-lg: 0 12px 36px rgba(20, 24, 30, 0.16);
+  --shadow-sm: 0 1px 2px rgba(20, 24, 30, 0.06);
+  --shadow-md: 0 6px 20px rgba(20, 24, 30, 0.1);
+  --shadow-lg: 0 16px 44px rgba(20, 24, 30, 0.18);
 
-  /* Minimum comfortable hit target. 44px is Apple's HIG floor; we use it on
-     touch pointers and allow denser controls where there's a real mouse. */
+  /* 44px is Apple's floor for things you tap. Text fields are not that —
+     they're targets you aim at with a caret — so they get 40px and the
+     vertical budget goes back to content. */
   --tap: 44px;
-  --control-h: 38px;
+  --field-h: 40px;
+  --control-h: 36px;
 
   --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
 
-  /* Safe-area insets, defaulted to 0 where unsupported. */
   --sa-t: env(safe-area-inset-top, 0px);
   --sa-r: env(safe-area-inset-right, 0px);
   --sa-b: env(safe-area-inset-bottom, 0px);
   --sa-l: env(safe-area-inset-left, 0px);
 
+  --gutter: 16px;
   --nav-h: 0px;
 
   color-scheme: light dark;
 }
 
+/* Dark: the page drops well below the cards so panels actually read as panels.
+   The previous values put card and page within a few points of each other,
+   which is why everything looked like one flat grey sheet. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #14161a;
-    --bg-raised: #1c1f25;
-    --bg-sunken: #191c21;
-    --bg-input: #21252c;
-    --border: #2c3138;
-    --border-strong: #3a4048;
-    --text: #eceef1;
-    --text-muted: #a3aab4;
-    --text-faint: #757d88;
-    --accent: #7ab3e0;
-    --accent-hover: #9ac8ec;
-    --accent-soft: #1d2c3a;
-    --danger: #e98f72;
-    --danger-soft: #38211a;
-    --danger-text: #f0b6a1;
-    --warn: #dcb05a;
-    --ok: #7fbd9c;
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
-    --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.55);
+    --bg: #0e1014;
+    --bg-raised: #191d24;
+    --bg-sunken: #14171d;
+    --bg-input: #1f242c;
+    --border: #2b313a;
+    --border-strong: #3d444f;
+    --text: #e9ecf1;
+    --text-muted: #a7b0bd;
+    --text-faint: #8e97a6;
+    --accent: #6aa9dd;
+    --accent-hover: #8cc0eb;
+    --accent-soft: #16293a;
+    --accent-border: #2f506d;
+    --on-accent: #0b1118;
+    --danger: #e08b6d;
+    --danger-soft: #341c15;
+    --danger-text: #f0b49c;
+    --warn: #d2a75a;
+    --ok: #74b795;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 16px 44px rgba(0, 0, 0, 0.6);
   }
 }
 
 :root[data-theme="dark"] {
-  --bg: #14161a;
-  --bg-raised: #1c1f25;
-  --bg-sunken: #191c21;
-  --bg-input: #21252c;
-  --border: #2c3138;
-  --border-strong: #3a4048;
-  --text: #eceef1;
-  --text-muted: #a3aab4;
-  --text-faint: #757d88;
-  --accent: #7ab3e0;
-  --accent-hover: #9ac8ec;
-  --accent-soft: #1d2c3a;
-  --danger: #e98f72;
-  --danger-soft: #38211a;
-  --danger-text: #f0b6a1;
-  --warn: #dcb05a;
-  --ok: #7fbd9c;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.55);
+  --bg: #0e1014;
+  --bg-raised: #191d24;
+  --bg-sunken: #14171d;
+  --bg-input: #1f242c;
+  --border: #2b313a;
+  --border-strong: #3d444f;
+  --text: #e9ecf1;
+  --text-muted: #a7b0bd;
+  --text-faint: #8e97a6;
+  --accent: #6aa9dd;
+  --accent-hover: #8cc0eb;
+  --accent-soft: #16293a;
+  --accent-border: #2f506d;
+  --on-accent: #0b1118;
+  --danger: #e08b6d;
+  --danger-soft: #341c15;
+  --danger-text: #f0b49c;
+  --warn: #d2a75a;
+  --ok: #74b795;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 16px 44px rgba(0, 0, 0, 0.6);
 }
 
 /* ---------- reset ---------- */
 * { box-sizing: border-box; }
 
-html {
-  /* Stops iOS from bumping text size when you rotate to landscape. */
-  -webkit-text-size-adjust: 100%;
-}
+html { -webkit-text-size-adjust: 100%; }
 
-html,
-body {
+html, body {
   margin: 0;
   padding: 0;
   min-height: 100%;
@@ -124,36 +137,25 @@ body {
   font-size: 15px;
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
-  /* Kill the grey flash on tap; we draw our own :active states. */
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
 }
 
 button, input, select, textarea { font-family: inherit; color: inherit; }
 button { -webkit-appearance: none; appearance: none; }
+h1, h2, h3 { margin: 0; font-weight: 650; }
 
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 :focus:not(:focus-visible) { outline: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 
 .sr-only {
-  position: absolute;
-  width: 1px; height: 1px;
-  padding: 0; margin: -1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  border: 0;
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
 
 /* ============================================================================
@@ -162,14 +164,14 @@ button { -webkit-appearance: none; appearance: none; }
 .app {
   min-height: 100vh;
   min-height: 100dvh;
-  padding-bottom: calc(var(--nav-h) + var(--sa-b) + 28px);
+  padding-bottom: calc(var(--nav-h) + var(--sa-b) + 32px);
 }
 
 .app__inner {
-  max-width: 1040px;
+  max-width: 1060px;
   margin: 0 auto;
-  padding: 0 max(16px, var(--sa-l)) 0 max(16px, var(--sa-l));
-  padding-right: max(16px, var(--sa-r));
+  padding-left: max(var(--gutter), var(--sa-l));
+  padding-right: max(var(--gutter), var(--sa-r));
 }
 
 /* --- header --- */
@@ -177,30 +179,24 @@ button { -webkit-appearance: none; appearance: none; }
   position: sticky;
   top: 0;
   z-index: 30;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: saturate(180%) blur(12px);
-  -webkit-backdrop-filter: saturate(180%) blur(12px);
+  background: var(--bg);
   border-bottom: 1px solid var(--border);
   padding-top: var(--sa-t);
 }
-/* color-mix is widely supported now, but fall back to opaque where it isn't. */
-@supports not (background: color-mix(in srgb, red 50%, transparent)) {
-  .header { background: var(--bg); }
-}
 
 .header__inner {
-  max-width: 1040px;
+  max-width: 1060px;
   margin: 0 auto;
-  padding: 10px max(16px, var(--sa-r)) 10px max(16px, var(--sa-l));
+  padding: 9px max(var(--gutter), var(--sa-r)) 9px max(var(--gutter), var(--sa-l));
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
 
-.header__title { font-size: 17px; font-weight: 650; letter-spacing: -0.01em; }
+.header__title { font-size: 16px; font-weight: 650; letter-spacing: -0.01em; line-height: 1.25; }
 .header__sub {
-  font-size: 12px;
+  font-size: 11.5px;
   color: var(--text-muted);
   font-family: var(--mono);
   margin-top: 1px;
@@ -208,10 +204,10 @@ button { -webkit-appearance: none; appearance: none; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.header__actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+.header__actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
 
 /* ============================================================================
-   Controls
+   Buttons
    ========================================================================== */
 .btn {
   display: inline-flex;
@@ -219,140 +215,241 @@ button { -webkit-appearance: none; appearance: none; }
   justify-content: center;
   gap: 6px;
   min-height: var(--control-h);
-  padding: 0 13px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--border-strong);
-  background: var(--bg-raised);
-  color: var(--text-muted);
-  font-size: 13px;
-  cursor: pointer;
-  transition: background 0.14s, border-color 0.14s, color 0.14s;
-  white-space: nowrap;
-  user-select: none;
-}
-.btn:active { transform: translateY(0.5px); }
-.btn--on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
-.btn--square { padding: 0; width: var(--control-h); }
-.btn--primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-  font-weight: 600;
-  border-radius: var(--radius-sm);
-}
-.btn--ghost { border-color: transparent; background: transparent; }
-.btn--danger { color: var(--danger); border-color: var(--danger); }
-.btn:disabled { opacity: 0.5; cursor: default; }
-
-@media (hover: hover) and (pointer: fine) {
-  .btn:hover { border-color: var(--accent); color: var(--accent); }
-  .btn--on:hover { background: var(--accent-soft); }
-  .btn--primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: #fff; }
-  .btn--ghost:hover { background: var(--accent-soft); border-color: transparent; }
-  .btn--danger:hover { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
-}
-
-/* Touch devices get full-size targets even for the small round buttons. */
-@media (hover: none) {
-  .btn { min-height: var(--tap); padding: 0 15px; }
-  .btn--square { width: var(--tap); }
-}
-
-/* Inputs: 16px font is deliberate — anything smaller makes iOS Safari zoom the
-   whole page in when the field takes focus, which is jarring and hard to undo. */
-.field {
-  width: 100%;
-  min-height: var(--control-h);
-  padding: 0 11px;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
-  background: var(--bg-input);
-  font-size: 16px;
-  line-height: normal;
-}
-textarea.field { padding: 9px 11px; min-height: 76px; resize: vertical; line-height: 1.45; }
-select.field {
-  -webkit-appearance: none;
-  appearance: none;
-  padding-right: 30px;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b9099' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
-  background-repeat: no-repeat;
-  background-position: right 10px center;
-}
-/* Date/time inputs on iOS render their own control; stop it overflowing. */
-input[type="date"].field,
-input[type="time"].field { min-width: 0; }
-.field:focus { outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent); }
-.field::placeholder { color: var(--text-faint); }
-
-@media (hover: none) {
-  .field { min-height: var(--tap); }
-}
-
-.field-group { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.field-label {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: var(--text-faint);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.check-input {
-  width: 19px;
-  height: 19px;
-  accent-color: var(--accent);
-  flex-shrink: 0;
-  margin: 0;
-}
-
-/* ============================================================================
-   Chips / filter rows
-   ========================================================================== */
-.chiprow {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  flex-wrap: wrap;
-  margin: 12px 0;
-}
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  min-height: 32px;
   padding: 0 12px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--border-strong);
   background: var(--bg-raised);
   color: var(--text-muted);
   font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.14s, border-color 0.14s, color 0.14s;
+  white-space: nowrap;
+  user-select: none;
+}
+.btn--on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.btn--square { padding: 0; width: var(--control-h); }
+/* --on-accent is the readable text colour for a filled accent button. The
+   accent is dark in light mode and light in dark mode, so the label has to
+   flip with it rather than always being white. */
+.btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+}
+
+.btn--danger { color: var(--danger); border-color: var(--danger); background: transparent; }
+.btn:disabled { opacity: 0.45; cursor: default; }
+
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .btn--on:hover { background: var(--accent-soft); }
+  .btn--primary:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
+  .btn--danger:hover { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+}
+
+@media (hover: none) {
+  .btn { min-height: var(--tap); padding: 0 14px; }
+  .btn--square { width: var(--tap); }
+}
+
+/* ============================================================================
+   Fields
+   ========================================================================== */
+/* 16px is deliberate: anything smaller and iOS Safari zooms the whole page in
+   when the field takes focus. */
+.field {
+  width: 100%;
+  height: var(--field-h);
+  padding: 0 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  font-size: 16px;
+  line-height: normal;
+  color: var(--text);
+}
+textarea.field { height: auto; padding: 8px 10px; min-height: 68px; resize: vertical; line-height: 1.45; }
+
+select.field {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 28px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235c636f' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  text-overflow: ellipsis;
+}
+
+.field:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.field::placeholder { color: var(--text-faint); }
+
+/* --- date & time ---------------------------------------------------------
+   Two native-control problems this fixes:
+   1. An empty <input type="date"> renders completely blank on iOS Safari —
+      no "mm/dd/yyyy" hint like other browsers show — so the field looked like
+      a broken empty box. .datefield paints our own placeholder behind it.
+   2. iOS centres the value inside the control, so a filled date sat in the
+      middle while every other field's text started at the left edge. */
+.datefield { position: relative; display: block; }
+.datefield > .field { position: relative; background: transparent; z-index: 1; }
+.datefield__ph {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 16px;
+  color: var(--text-faint);
+  pointer-events: none;
+  border-radius: var(--radius-sm);
+  background: var(--bg-input);
+  z-index: 0;
+}
+input[type="date"].field::-webkit-date-and-time-value,
+input[type="time"].field::-webkit-date-and-time-value { text-align: left; }
+input[type="date"].field::-webkit-datetime-edit,
+input[type="time"].field::-webkit-datetime-edit { padding: 0; }
+/* Hide the browser's own empty-state hint; .datefield__ph replaces it so the
+   wording is the same on every platform. */
+.datefield--empty > .field::-webkit-datetime-edit { opacity: 0; }
+.datefield--empty > .field:focus::-webkit-datetime-edit { opacity: 1; }
+.datefield--empty > .field:focus + .datefield__ph { opacity: 0; }
+input[type="date"].field::-webkit-calendar-picker-indicator,
+input[type="time"].field::-webkit-calendar-picker-indicator {
+  opacity: 0.45;
+  cursor: pointer;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) input::-webkit-calendar-picker-indicator { filter: invert(1); }
+}
+:root[data-theme="dark"] input::-webkit-calendar-picker-indicator { filter: invert(1); }
+
+.field-group { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.field-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1.4;
+}
+
+.check-input { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; margin: 0; }
+
+/* ============================================================================
+   Segmented control — replaces the loose pill rows. One bounded strip reads
+   as a single control instead of five things floating in space.
+   ========================================================================== */
+.seg {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.seg::-webkit-scrollbar { display: none; }
+/* A strip that overflows is masked at the trailing edge, so the cut-off
+   segment reads as "scroll for more" instead of looking clipped. */
+.seg--scroll {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent 100%);
+  mask-image: linear-gradient(to right, #000 calc(100% - 26px), transparent 100%);
+}
+.seg__btn {
+  flex: 1 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 0 12px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 550;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.14s, color 0.14s;
+}
+.seg__btn--on {
+  background: var(--bg-raised);
+  color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+.seg__count { font-family: var(--mono); font-size: 11px; opacity: 0.75; }
+@media (hover: hover) and (pointer: fine) {
+  .seg__btn:hover:not(.seg__btn--on) { color: var(--text); }
+}
+@media (hover: none) { .seg__btn { min-height: 38px; } }
+
+/* Icon-only variant, used for the theme switch. */
+.seg--icons .seg__btn { flex: 0 0 auto; padding: 0 10px; min-height: 30px; }
+@media (hover: none) { .seg--icons .seg__btn { min-height: 36px; padding: 0 12px; } }
+
+/* ============================================================================
+   Chips + filter bar
+   ========================================================================== */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 0 11px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-raised);
+  color: var(--text-muted);
+  font-size: 13px;
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.14s, border-color 0.14s, color 0.14s;
 }
-.chip--on { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
-.chip__count { font-family: var(--mono); font-size: 11px; color: var(--text-faint); }
-.chip--on .chip__count { color: var(--accent); }
+.chip--on { border-color: var(--accent-border); color: var(--accent); background: var(--accent-soft); }
 @media (hover: hover) and (pointer: fine) { .chip:hover { border-color: var(--accent); } }
-@media (hover: none) { .chip { min-height: 38px; padding: 0 14px; } }
+@media (hover: none) { .chip { min-height: 38px; padding: 0 13px; } }
 
-/* A horizontally scrollable row for narrow screens — better than wrapping
-   filter chips onto four lines and pushing the list off-screen. */
-.chiprow--scroll {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  scroll-snap-type: x proximity;
-  /* bleed to the screen edges so scrolled content isn't clipped mid-chip */
-  margin-left: calc(-1 * max(16px, var(--sa-l)));
-  margin-right: calc(-1 * max(16px, var(--sa-r)));
-  padding-left: max(16px, var(--sa-l));
-  padding-right: max(16px, var(--sa-r));
+/* The category filters and "show completed" used to sit permanently above the
+   list, costing two rows before you saw a single task. They live behind this
+   one-line bar now, which also reports how many filters are on. */
+.filterbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 0;
 }
-.chiprow--scroll::-webkit-scrollbar { display: none; }
-.chiprow--scroll > * { scroll-snap-align: start; }
+.filterbar__panel {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: var(--bg-sunken);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.badge-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+}
 
 .togglelabel {
   display: inline-flex;
@@ -365,18 +462,15 @@ input[type="time"].field { min-width: 0; }
   white-space: nowrap;
 }
 .togglelabel--boxed {
-  padding: 0 12px;
+  padding: 0 11px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-pill);
   background: var(--bg-raised);
 }
-/* The box itself stays 19px — a 44px checkbox looks absurd — so the label
-   wrapping it is what gets sized up, since that is the real target. */
 @media (hover: none) {
-  .togglelabel { min-height: var(--tap); }
-  .togglelabel--boxed { padding: 0 15px; }
+  .togglelabel { min-height: 38px; }
+  .togglelabel--boxed { padding: 0 13px; }
 }
-
 .push-right { margin-left: auto; }
 
 /* ============================================================================
@@ -386,7 +480,7 @@ input[type="time"].field { min-width: 0; }
   display: flex;
   gap: 2px;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 18px;
+  margin-bottom: 16px;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -395,7 +489,7 @@ input[type="time"].field { min-width: 0; }
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 11px 15px;
+  padding: 10px 14px;
   background: none;
   border: none;
   border-bottom: 2px solid transparent;
@@ -413,9 +507,9 @@ input[type="time"].field { min-width: 0; }
 .bottomnav { display: none; }
 
 /* ============================================================================
-   Sections, cards, list items
+   Sections, list items
    ========================================================================== */
-.sections { display: flex; flex-direction: column; gap: 30px; }
+.sections { display: flex; flex-direction: column; gap: 28px; }
 
 .section__header {
   display: flex;
@@ -423,7 +517,7 @@ input[type="time"].field { min-width: 0; }
   gap: 8px;
   font-size: 15px;
   font-weight: 650;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 .section__count {
   margin-left: auto;
@@ -441,22 +535,22 @@ input[type="time"].field { min-width: 0; }
   box-shadow: var(--shadow-sm);
 }
 
-.list { display: flex; flex-direction: column; gap: 8px; }
+.list { display: flex; flex-direction: column; gap: 6px; }
 
 .group-header {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   color: var(--text-faint);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  margin: 14px 0 6px;
+  margin: 14px 0 5px;
 }
-.group-header:first-child { margin-top: 0; }
+.group-header:first-child { margin-top: 2px; }
 
 .empty {
   font-size: 13.5px;
   color: var(--text-faint);
-  padding: 22px 4px;
+  padding: 26px 12px;
   text-align: center;
   line-height: 1.6;
 }
@@ -468,21 +562,19 @@ input[type="time"].field { min-width: 0; }
   background: var(--bg-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 10px 10px 10px 11px;
-  box-shadow: var(--shadow-sm);
+  padding: 9px 8px 9px 10px;
   transition: border-color 0.14s;
 }
-.item--done { background: var(--bg-sunken); box-shadow: none; }
-@media (hover: hover) and (pointer: fine) {
-  .item:hover { border-color: var(--border-strong); }
-}
+.item--open { border-color: var(--accent-border); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.item--done { background: var(--bg-sunken); }
+@media (hover: hover) and (pointer: fine) { .item:hover { border-color: var(--border-strong); } }
 
 .item__check {
   width: 22px;
   height: 22px;
   border-radius: 50%;
   border: 1.5px solid var(--border-strong);
-  background: var(--bg-input);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -490,30 +582,13 @@ input[type="time"].field { min-width: 0; }
   flex-shrink: 0;
   cursor: pointer;
   padding: 0;
-  transition: color 0.12s, border-color 0.12s, background 0.12s;
+  margin-top: 1px;
+  transition: color 0.12s, border-color 0.12s;
 }
 @media (hover: hover) and (pointer: fine) {
   .item__check:hover { border-color: var(--accent); color: var(--accent); }
 }
-.item__check--done { border-color: var(--border-strong); color: var(--text-faint); }
-
-/* Ticking something off is the single most-used action in the app, and a 22px
-   circle is half of Apple's 44px minimum. Rather than draw a clumsy oversized
-   circle, extend the *hit* area past the visible edge — same look, thumb-sized
-   target. Same trick for subtask ticks and the row icon buttons. */
-@media (hover: none) {
-  .item__check, .subtask__check { position: relative; }
-  .item__check::after,
-  .subtask__check::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: var(--tap);
-    height: var(--tap);
-    transform: translate(-50%, -50%);
-  }
-}
+.item__check--done { color: var(--text-faint); }
 
 .item__body { flex: 1; min-width: 0; }
 .item__title { font-size: 14.5px; line-height: 1.35; overflow-wrap: anywhere; }
@@ -521,12 +596,12 @@ input[type="time"].field { min-width: 0; }
 .item__meta {
   font-size: 11.5px;
   color: var(--text-faint);
-  margin-top: 3px;
+  margin-top: 2px;
   font-family: var(--mono);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 7px;
+  gap: 3px 8px;
 }
 .item__meta svg { vertical-align: -1px; }
 .item__meta .badge { margin-top: 0; }
@@ -534,16 +609,13 @@ input[type="time"].field { min-width: 0; }
 .item__actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 2px;
+  gap: 1px;
   flex-shrink: 0;
   margin-left: auto;
   align-self: flex-start;
+  justify-content: flex-end;
 }
-/* A fixed lane keeps the date pills in a straight column down the list even
-   though rows carry different numbers of buttons (only repeating items get
-   "skip"). Without it every pill sits at its own x. */
-@media (min-width: 720px) { .item__actions { min-width: 126px; } }
+@media (min-width: 720px) { .item__actions { min-width: 120px; } }
 
 .iconbtn {
   display: inline-flex;
@@ -564,26 +636,36 @@ input[type="time"].field { min-width: 0; }
   .iconbtn:hover { background: var(--accent-soft); color: var(--accent); }
   .iconbtn--danger:hover { background: var(--danger-soft); color: var(--danger); }
 }
-/* Not the full 44px: these sit 2px apart in a row, and an overflowing hit area
-   would swallow taps meant for the button beside it. 40px is the widest that
-   stays in its own lane. */
+/* Not the full 44px: these sit a pixel apart in a row, and an overflowing hit
+   area would swallow taps meant for the button beside it. */
 @media (hover: none) { .iconbtn { width: 40px; height: 40px; } }
 .iconbtn--on { color: var(--warn); }
 
-/* The old build faded the delete button in on :hover — which means it could
-   never be tapped on a phone or iPad. Only hide it where a real cursor exists. */
+/* Hover-reveal only where a cursor exists — otherwise the control is simply
+   invisible and untappable on a phone, which is what the first build shipped. */
 @media (hover: hover) and (pointer: fine) {
   .item .reveal { opacity: 0; transition: opacity 0.14s; }
-  .item:hover .reveal,
-  .item:focus-within .reveal { opacity: 1; }
+  .item:hover .reveal, .item:focus-within .reveal { opacity: 1; }
+}
+
+/* Tick targets get a 44px hit area without a 44px circle. */
+@media (hover: none) {
+  .item__check, .subtask__check { position: relative; }
+  .item__check::after, .subtask__check::after {
+    content: "";
+    position: absolute;
+    top: 50%; left: 50%;
+    width: var(--tap); height: var(--tap);
+    transform: translate(-50%, -50%);
+  }
 }
 
 .badge {
-  font-size: 11px;
+  font-size: 10.5px;
   font-family: var(--mono);
   border: 1px solid;
   border-radius: var(--radius-pill);
-  padding: 2px 8px;
+  padding: 1px 7px;
   flex-shrink: 0;
   white-space: nowrap;
   align-self: flex-start;
@@ -599,14 +681,14 @@ input[type="time"].field { min-width: 0; }
 .priority-mark--medium { color: var(--warn); }
 .priority-mark--high { color: var(--danger); }
 
-.done-section { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px; }
+.done-section { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 12px; }
 .done-section__header {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   color: var(--text-faint);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 /* ============================================================================
@@ -616,10 +698,10 @@ input[type="time"].field { min-width: 0; }
   background: var(--bg-sunken);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 12px;
-  margin-bottom: 16px;
+  padding: 8px;
+  margin-bottom: 12px;
 }
-.addform__top { display: flex; gap: 8px; align-items: stretch; }
+.addform__top { display: flex; gap: 6px; align-items: stretch; }
 .addform__top .field { flex: 1; min-width: 0; }
 .addform__grid {
   display: grid;
@@ -654,26 +736,42 @@ input[type="time"].field { min-width: 0; }
   color: var(--text-muted);
   font-size: 12.5px;
   cursor: pointer;
-  padding: 8px 2px 2px;
-  margin-top: 4px;
+  padding: 6px 4px 2px;
   min-height: 30px;
 }
-@media (hover: none) { .addform__detailsbtn { min-height: var(--tap); } }
 @media (hover: hover) and (pointer: fine) { .addform__detailsbtn:hover { color: var(--accent); } }
+@media (hover: none) { .addform__detailsbtn { min-height: 38px; } }
+
+/* Two-up on every width down to 340px. The content is short labelled fields;
+   stacking them one-per-row is what made this panel a mile long. */
+.formgrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 8px;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+.formgrid--plain { margin-top: 0; padding-top: 0; border-top: none; }
+.formgrid > .field-group--wide { grid-column: 1 / -1; }
+
+@media (min-width: 560px) { .formgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 900px) { .formgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 339px) { .formgrid { grid-template-columns: 1fr; } }
 
 /* ============================================================================
-   Expanded / detail panel
+   Detail panel — attached to the row it belongs to, rather than floating free
    ========================================================================== */
 .detail {
-  margin: -2px 0 6px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--accent-border);
   border-top: none;
   border-radius: 0 0 var(--radius-sm) var(--radius-sm);
   background: var(--bg-sunken);
-  padding: 14px;
+  padding: 12px;
+  margin-bottom: 2px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 .detail__grid {
   display: grid;
@@ -681,43 +779,38 @@ input[type="time"].field { min-width: 0; }
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 10px;
 }
-.detail__label { font-size: 11px; font-weight: 700; color: var(--text-faint); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
-.detail__footer { display: flex; gap: 8px; flex-wrap: wrap; }
+.detail__footer { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 
-.subtask { display: flex; align-items: center; gap: 9px; padding: 3px 0; }
+.subtask { display: flex; align-items: center; gap: 8px; padding: 2px 0; }
 .subtask__check {
-  width: 20px;
-  height: 20px;
-  border-radius: 5px;
+  width: 20px; height: 20px;
+  border-radius: 6px;
   border: 1.5px solid var(--border-strong);
-  background: var(--bg-input);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: transparent;
+  display: flex; align-items: center; justify-content: center;
   color: transparent;
-  flex-shrink: 0;
-  cursor: pointer;
-  padding: 0;
+  flex-shrink: 0; cursor: pointer; padding: 0;
 }
 .subtask__check--done { color: var(--text-muted); }
 .subtask__title { font-size: 13.5px; flex: 1; overflow-wrap: anywhere; }
 .subtask__title--done { text-decoration: line-through; color: var(--text-faint); }
-.subtask__add { display: flex; gap: 7px; margin-top: 8px; }
+.subtask__add { display: flex; gap: 6px; margin-top: 6px; }
 .subtask__add .field { flex: 1; }
 
 /* ============================================================================
    Repeat editor
    ========================================================================== */
-.repeat { display: flex; flex-direction: column; gap: 10px; }
-.repeat__row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.repeat__row .field { width: auto; flex: 0 1 auto; }
-.repeat__interval { width: 74px; text-align: center; }
-.repeat__inline-label { font-size: 13px; color: var(--text-muted); }
-.repeat__days { display: flex; gap: 5px; flex-wrap: wrap; }
+.repeat { display: flex; flex-direction: column; gap: 8px; }
+.repeat__row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.repeat__row .field { width: auto; flex: 1 1 auto; min-width: 0; }
+.repeat__interval { flex: 0 0 64px !important; width: 64px; text-align: center; }
+.repeat__inline-label { font-size: 12.5px; color: var(--text-muted); flex-shrink: 0; }
+.repeat__days { display: flex; gap: 4px; }
 .repeat__day {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
+  flex: 1 1 0;
+  min-width: 0;
+  height: 38px;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border-strong);
   background: var(--bg-raised);
   color: var(--text-muted);
@@ -726,17 +819,18 @@ input[type="time"].field { min-width: 0; }
   cursor: pointer;
   padding: 0;
 }
-.repeat__day--on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+.repeat__day--on { border-color: var(--accent-border); background: var(--accent-soft); color: var(--accent); }
 .repeat__summary {
   font-size: 12.5px;
-  color: var(--text-muted);
+  color: var(--accent);
   background: var(--accent-soft);
+  border: 1px solid var(--accent-border);
   border-radius: var(--radius-sm);
-  padding: 8px 10px;
+  padding: 7px 9px;
   display: flex;
   align-items: flex-start;
   gap: 7px;
-  line-height: 1.5;
+  line-height: 1.45;
 }
 .repeat__summary svg { flex-shrink: 0; margin-top: 2px; }
 
@@ -745,9 +839,9 @@ input[type="time"].field { min-width: 0; }
    ========================================================================== */
 .banner {
   border-radius: var(--radius-sm);
-  padding: 10px 12px;
+  padding: 9px 11px;
   font-size: 13px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -757,14 +851,14 @@ input[type="time"].field { min-width: 0; }
 .banner--info { background: var(--accent-soft); color: var(--accent); }
 .banner__close { margin-left: auto; }
 
-.settings { display: flex; flex-direction: column; gap: 20px; }
-.settings__group-title { font-size: 14px; font-weight: 650; margin-bottom: 5px; }
+.settings { display: flex; flex-direction: column; gap: 18px; }
+.settings__group-title { font-size: 13.5px; font-weight: 650; margin-bottom: 4px; }
 .settings__hint { font-size: 12.5px; color: var(--text-muted); line-height: 1.55; }
-.settings__row { display: flex; gap: 8px; align-items: center; margin-top: 10px; flex-wrap: wrap; }
+.settings__row { display: flex; gap: 8px; align-items: center; margin-top: 9px; flex-wrap: wrap; }
 .urlbox {
   flex: 1 1 240px;
   min-width: 0;
-  padding: 9px 10px;
+  padding: 8px 10px;
   background: var(--bg-sunken);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -779,7 +873,7 @@ input[type="time"].field { min-width: 0; }
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: max(24px, var(--sa-t)) max(16px, var(--sa-r)) max(24px, var(--sa-b)) max(16px, var(--sa-l));
+  padding: max(24px, var(--sa-t)) max(var(--gutter), var(--sa-r)) max(24px, var(--sa-b)) max(var(--gutter), var(--sa-l));
 }
 .auth__card {
   width: 100%;
@@ -790,28 +884,24 @@ input[type="time"].field { min-width: 0; }
   padding: 26px;
   box-shadow: var(--shadow-md);
 }
-.auth__title { font-size: 20px; font-weight: 650; margin-bottom: 4px; }
-.auth__sub { font-size: 13.5px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
-.auth__form { display: flex; flex-direction: column; gap: 10px; }
+.auth__title { font-size: 20px; margin-bottom: 4px; }
+.auth__sub { font-size: 13.5px; color: var(--text-muted); margin: 0 0 18px; line-height: 1.5; }
+.auth__form { display: flex; flex-direction: column; gap: 9px; }
+.auth__form .field { height: 46px; }
 .auth__submit { width: 100%; min-height: 46px; font-size: 15px; }
-.auth__switch { font-size: 13px; color: var(--text-muted); margin-top: 18px; text-align: center; line-height: 1.7; }
+.auth__switch { font-size: 13px; color: var(--text-muted); margin-top: 16px; text-align: center; line-height: 1.7; }
 .auth__link {
-  color: var(--accent);
-  font-weight: 600;
-  background: none;
-  border: none;
-  padding: 2px 0;
-  cursor: pointer;
-  font-size: inherit;
+  color: var(--accent); font-weight: 600; background: none; border: none;
+  padding: 2px 0; cursor: pointer; font-size: inherit;
 }
 @media (hover: hover) and (pointer: fine) { .auth__link:hover { text-decoration: underline; } }
 
 /* ============================================================================
-   Skeleton loading
+   Skeleton
    ========================================================================== */
-.skeleton { display: flex; flex-direction: column; gap: 10px; }
+.skeleton { display: flex; flex-direction: column; gap: 8px; }
 .skeleton__bar {
-  height: 52px;
+  height: 48px;
   border-radius: var(--radius-sm);
   background: linear-gradient(90deg, var(--bg-sunken) 25%, var(--border) 50%, var(--bg-sunken) 75%);
   background-size: 300% 100%;
@@ -823,52 +913,39 @@ input[type="time"].field { min-width: 0; }
 }
 
 /* ============================================================================
-   Layout: iPad and up — two columns in stacked view so the wide screen isn't
-   one long ribbon of text down the middle.
+   Wide screens: two columns in stacked view
    ========================================================================== */
 @media (min-width: 900px) {
   .sections--stacked {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 30px 26px;
+    gap: 28px 24px;
     align-items: start;
   }
-  /* Tasks is the primary list, so it gets the full width above the other two. */
   .sections--stacked > :first-child:not(:only-child) { grid-column: 1 / -1; }
 }
 
 /* ============================================================================
-   Layout: phone — bottom tab bar, tighter spacing, full-width add button
+   Phone
    ========================================================================== */
 @media (max-width: 719px) {
-  :root { --nav-h: 56px; }
+  :root { --nav-h: 54px; --gutter: 14px; }
 
-  .header__inner { padding-top: 8px; padding-bottom: 8px; }
-  .header__title { font-size: 16px; }
+  .header__inner { padding-top: 7px; padding-bottom: 7px; }
+  .sections { gap: 24px; }
 
-  .sections { gap: 26px; }
-  .section__header { font-size: 14.5px; }
-
-  /* The top tab bar is replaced by the thumb-reachable bottom nav. */
   .tabbar { display: none; }
 
   .bottomnav {
     display: flex;
     position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    left: 0; right: 0; bottom: 0;
     z-index: 40;
-    background: color-mix(in srgb, var(--bg-raised) 92%, transparent);
-    backdrop-filter: saturate(180%) blur(14px);
-    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    background: var(--bg-raised);
     border-top: 1px solid var(--border);
     padding-bottom: var(--sa-b);
     padding-left: var(--sa-l);
     padding-right: var(--sa-r);
-  }
-  @supports not (background: color-mix(in srgb, red 50%, transparent)) {
-    .bottomnav { background: var(--bg-raised); }
   }
   .bottomnav__btn {
     flex: 1;
@@ -881,26 +958,25 @@ input[type="time"].field { min-width: 0; }
     background: none;
     border: none;
     color: var(--text-faint);
-    font-size: 10.5px;
+    font-size: 10px;
     font-weight: 600;
     cursor: pointer;
-    padding: 6px 2px;
+    padding: 5px 2px;
     position: relative;
   }
   .bottomnav__btn--on { color: var(--accent); }
   .bottomnav__badge {
     position: absolute;
-    top: 5px;
-    left: 50%;
-    margin-left: 7px;
-    min-width: 16px;
-    height: 16px;
+    top: 3px; left: 50%;
+    margin-left: 6px;
+    min-width: 15px; height: 15px;
     border-radius: 8px;
     background: var(--accent);
-    color: #fff;
+    color: var(--on-accent);
     font-family: var(--mono);
-    font-size: 10px;
-    line-height: 16px;
+    font-size: 9.5px;
+    font-weight: 700;
+    line-height: 15px;
     text-align: center;
     padding: 0 3px;
   }
@@ -917,18 +993,25 @@ input[type="time"].field { min-width: 0; }
   .hide-phone { display: none !important; }
 }
 
-@media (max-width: 400px) {
-  .item__title { font-size: 14px; }
+/* Between phone and desktop the header runs out of room and starts eating the
+   counts line. The button labels go before the information does. */
+@media (max-width: 899px) {
+  .hide-narrow { display: none !important; }
+  .btn--collapsible { padding: 0 11px; }
 }
 
-/* Landscape phone: the sticky header eats too much of a 375px-tall viewport. */
+@media (max-width: 400px) {
+  .item__title { font-size: 14px; }
+  .header__title { font-size: 15px; }
+}
+
+/* Landscape phone: a sticky header eats too much of a 390px-tall viewport. */
 @media (max-height: 460px) and (orientation: landscape) {
   .header { position: static; }
 }
 
-/* Print: just the lists, please. */
 @media print {
-  .header, .bottomnav, .addform, .chiprow, .tabbar, .item__actions { display: none !important; }
+  .header, .bottomnav, .addform, .filterbar, .seg, .tabbar, .item__actions { display: none !important; }
   .app { padding: 0; }
-  .item { break-inside: avoid; box-shadow: none; }
+  .item { break-inside: avoid; }
 }

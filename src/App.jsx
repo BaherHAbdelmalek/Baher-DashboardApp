@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   LayoutGrid, AlignJustify, CheckSquare, Calendar, Bell,
   LogOut, BellRing, BellOff, Copy, Check as CheckIcon,
-  Settings as SettingsIcon, X, Sun, Moon, Monitor,
+  Settings as SettingsIcon, X, SlidersHorizontal, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { supabase } from "./supabaseClient";
 import { DEFAULT_PROJECTS } from "./styles";
@@ -13,6 +13,7 @@ import { subscribeToPush, unsubscribeFromPush, getPushStatus, pushSupported, isS
 import Auth from "./components/Auth";
 import ListSection from "./components/ListSection";
 import MeetingsSection from "./components/MeetingsSection";
+import ThemeToggle from "./components/ThemeToggle";
 
 const VIEW_KEY = "dashboard-view-v1"; // per-device UI preference, kept in localStorage on purpose
 
@@ -76,6 +77,7 @@ function Dashboard({ session }) {
   const [pushStatus, setPushStatus] = useState("checking");
   const [pushError, setPushError] = useState(null);
   const [dismissedError, setDismissedError] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     try {
@@ -175,6 +177,8 @@ function Dashboard({ session }) {
     reminders: remindersHook.items.filter((r) => r.status !== "done" && !excludedProjects.has(r.project)).length,
   };
 
+  const hiddenCount = excludedProjects.size;
+
   const errors = [tasksHook.error, meetingsHook.error, remindersHook.error].filter(Boolean);
   const activeError = errors.find((e) => e !== dismissedError) || null;
 
@@ -245,32 +249,38 @@ function Dashboard({ session }) {
             </div>
           </div>
           <div className="header__actions">
-            <ThemeToggle theme={theme} onPick={pickTheme} />
+            {!isPhone && <ThemeToggle theme={theme} onPick={pickTheme} />}
             {!isPhone && (
               <>
                 <button
                   type="button"
-                  className={`btn${viewMode === "tabs" ? " btn--on" : ""}`}
+                  className={`btn btn--collapsible${viewMode === "tabs" ? " btn--on" : ""}`}
                   onClick={() => setViewMode("tabs")}
                   aria-pressed={viewMode === "tabs"}
+                  title="One section at a time"
                 >
-                  <LayoutGrid size={14} aria-hidden="true" /> Tabs
+                  <LayoutGrid size={14} aria-hidden="true" />
+                  <span className="hide-narrow">Tabs</span>
                 </button>
                 <button
                   type="button"
-                  className={`btn${viewMode === "stacked" ? " btn--on" : ""}`}
+                  className={`btn btn--collapsible${viewMode === "stacked" ? " btn--on" : ""}`}
                   onClick={() => setViewMode("stacked")}
                   aria-pressed={viewMode === "stacked"}
+                  title="All sections at once"
                 >
-                  <AlignJustify size={14} aria-hidden="true" /> Stacked
+                  <AlignJustify size={14} aria-hidden="true" />
+                  <span className="hide-narrow">Stacked</span>
                 </button>
                 <button
                   type="button"
-                  className={`btn${showSettings ? " btn--on" : ""}`}
+                  className={`btn btn--collapsible${showSettings ? " btn--on" : ""}`}
                   onClick={() => setShowSettings((s) => !s)}
                   aria-expanded={showSettings}
+                  title="Settings"
                 >
-                  <SettingsIcon size={14} aria-hidden="true" /> Settings
+                  <SettingsIcon size={14} aria-hidden="true" />
+                  <span className="hide-narrow">Settings</span>
                 </button>
               </>
             )}
@@ -290,6 +300,8 @@ function Dashboard({ session }) {
       <div className="app__inner">
         {showSettings && (
           <SettingsPanel
+            theme={theme}
+            onPickTheme={pickTheme}
             onClose={() => setShowSettings(false)}
             icsUrl={icsUrl}
             copied={copied}
@@ -321,35 +333,23 @@ function Dashboard({ session }) {
           <BootSkeleton label="Loading your dashboard…" />
         ) : (
           <>
-            <div className="chiprow chiprow--scroll" aria-label="Filter by category">
+            {/* Category filters used to sit permanently above the list, costing
+                two full rows before you reached a single task. They fold away
+                here, with a count so you can still see at a glance that some
+                are switched off. */}
+            <div className="filterbar">
               <button
                 type="button"
-                className={`chip${excludedProjects.size === 0 ? " chip--on" : ""}`}
-                onClick={() => setExcludedProjects(new Set())}
+                className={`btn${showFilters || hiddenCount > 0 ? " btn--on" : ""}`}
+                onClick={() => setShowFilters((f) => !f)}
+                aria-expanded={showFilters}
               >
-                All categories
+                <SlidersHorizontal size={14} aria-hidden="true" />
+                Filters
+                {hiddenCount > 0 && <span className="badge-dot">{hiddenCount}</span>}
+                {showFilters ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               </button>
-              {projects.map((p) => {
-                const active = !excludedProjects.has(p);
-                return (
-                  <button
-                    key={p}
-                    type="button"
-                    className={`chip${active ? " chip--on" : ""}`}
-                    aria-pressed={active}
-                    onClick={() => {
-                      const next = new Set(excludedProjects);
-                      if (active) next.add(p); else next.delete(p);
-                      setExcludedProjects(next);
-                    }}
-                  >
-                    {p}
-                  </button>
-                );
-              })}
-            </div>
 
-            <div className="chiprow">
               <label className="togglelabel togglelabel--boxed">
                 <input
                   className="check-input"
@@ -357,22 +357,52 @@ function Dashboard({ session }) {
                   checked={showDone}
                   onChange={(e) => setShowDone(e.target.checked)}
                 />
-                Show completed
+                Completed
               </label>
-
-              {effectiveView === "stacked" &&
-                tabIds.map((id) => (
-                  <label key={id} className="togglelabel togglelabel--boxed">
-                    <input
-                      className="check-input"
-                      type="checkbox"
-                      checked={sectionVisibility[id]}
-                      onChange={(e) => setSectionVisibility({ ...sectionVisibility, [id]: e.target.checked })}
-                    />
-                    {TAB_META[id].label}
-                  </label>
-                ))}
             </div>
+
+            {showFilters && (
+              <div className="filterbar__panel">
+                <button
+                  type="button"
+                  className={`chip${excludedProjects.size === 0 ? " chip--on" : ""}`}
+                  onClick={() => setExcludedProjects(new Set())}
+                >
+                  All categories
+                </button>
+                {projects.map((p) => {
+                  const active = !excludedProjects.has(p);
+                  return (
+                    <button
+                      key={p}
+                      type="button"
+                      className={`chip${active ? " chip--on" : ""}`}
+                      aria-pressed={active}
+                      onClick={() => {
+                        const next = new Set(excludedProjects);
+                        if (active) next.add(p); else next.delete(p);
+                        setExcludedProjects(next);
+                      }}
+                    >
+                      {p}
+                    </button>
+                  );
+                })}
+
+                {effectiveView === "stacked" &&
+                  tabIds.map((id) => (
+                    <label key={id} className="togglelabel togglelabel--boxed">
+                      <input
+                        className="check-input"
+                        type="checkbox"
+                        checked={sectionVisibility[id]}
+                        onChange={(e) => setSectionVisibility({ ...sectionVisibility, [id]: e.target.checked })}
+                      />
+                      {TAB_META[id].label}
+                    </label>
+                  ))}
+              </div>
+            )}
 
             {effectiveView === "tabs" && (
               <div className="tabbar" role="tablist" aria-label="Sections">
@@ -440,24 +470,7 @@ function Dashboard({ session }) {
   );
 }
 
-function ThemeToggle({ theme, onPick }) {
-  const ICONS = { system: Monitor, light: Sun, dark: Moon };
-  const NEXT = { system: "light", light: "dark", dark: "system" };
-  const Icon = ICONS[theme];
-  return (
-    <button
-      type="button"
-      className="btn btn--square"
-      onClick={() => onPick(NEXT[theme])}
-      aria-label={`Theme: ${theme}. Switch to ${NEXT[theme]}.`}
-      title={`Theme: ${theme}`}
-    >
-      <Icon size={15} aria-hidden="true" />
-    </button>
-  );
-}
-
-function SettingsPanel({ onClose, icsUrl, copied, onCopy, pushStatus, pushError, onTogglePush }) {
+function SettingsPanel({ onClose, theme, onPickTheme, icsUrl, copied, onCopy, pushStatus, pushError, onTogglePush }) {
   return (
     <div className="panel settings" style={{ marginTop: 16, marginBottom: 4 }}>
       <div style={{ display: "flex", alignItems: "center" }}>
@@ -465,6 +478,17 @@ function SettingsPanel({ onClose, icsUrl, copied, onCopy, pushStatus, pushError,
         <button type="button" className="iconbtn" style={{ marginLeft: "auto" }} onClick={onClose} aria-label="Close settings">
           <X size={17} aria-hidden="true" />
         </button>
+      </div>
+
+      <div>
+        <div className="settings__group-title">Appearance</div>
+        <div className="settings__hint">
+          “Auto” follows your device's light/dark setting. Pick Light or Dark to override it
+          on this device — useful on a computer that stays in light mode.
+        </div>
+        <div className="settings__row">
+          <ThemeToggle theme={theme} onPick={onPickTheme} showLabels />
+        </div>
       </div>
 
       <div>

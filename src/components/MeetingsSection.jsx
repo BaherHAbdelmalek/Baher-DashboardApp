@@ -8,6 +8,7 @@ import { useMediaQuery } from "../lib/useMediaQuery";
 import { advance, normalizeRule, shortRuleLabel, describeRule } from "../lib/recurrence";
 import CategorySelect from "./CategorySelect";
 import RepeatPicker from "./RepeatPicker";
+import DateTimeField from "./DateTimeField";
 
 export default function MeetingsSection({ items, insert, update, remove, projects, excludedProjects, showDone }) {
   // See ListSection: a phone row can't fit title + date pill + four buttons.
@@ -168,7 +169,7 @@ export default function MeetingsSection({ items, insert, update, remove, project
           return (
             <div key={m.id}>
               {showHeader && <div className="group-header">{g}</div>}
-              <div className="item">
+              <div className={`item${isOpen ? " item--open" : ""}`}>
                 <button
                   type="button"
                   className="item__check"
@@ -317,21 +318,22 @@ function MeetingDetail({ meeting: m, update, projects, canSkip, onSkip, onDelete
       <div className="detail__grid">
         <div className="field-group field-group--full">
           <span className="field-label">Date</span>
-          <input
-            className="field"
-            type="date"
+          {/* Moving the meeting re-arms its 30-minute heads-up. */}
+          <DateTimeField
             value={m.date || ""}
-            // Moving the meeting re-arms its 30-minute heads-up.
-            onChange={(e) => update(m.id, { date: e.target.value || null, notified_at: null })}
+            onChange={(v) => update(m.id, { date: v || null, notified_at: null })}
+            placeholder="No date"
+            ariaLabel="Date"
           />
         </div>
         <div className="field-group field-group--full">
           <span className="field-label">Time</span>
-          <input
-            className="field"
+          <DateTimeField
             type="time"
             value={m.time ? m.time.slice(0, 5) : ""}
-            onChange={(e) => update(m.id, { time: e.target.value || null, notified_at: null })}
+            onChange={(v) => update(m.id, { time: v || null, notified_at: null })}
+            placeholder="No time"
+            ariaLabel="Time"
           />
         </div>
         <div className="field-group field-group--compact">
