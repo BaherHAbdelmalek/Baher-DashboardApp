@@ -132,12 +132,23 @@ export default function MeetingsSection({ items, insert, update, remove, project
         {showDetails && (
           <div className="addform__grid">
             <div className="field-group field-group--full">
-              <label className="field-label" htmlFor="meeting-date">Date</label>
-              <input id="meeting-date" className="field" type="date" value={form.date} onChange={(e) => setField("date", e.target.value)} />
+              <span className="field-label">Date</span>
+              <DateTimeField
+                value={form.date}
+                onChange={(v) => setField("date", v)}
+                placeholder="No date"
+                ariaLabel="Date"
+              />
             </div>
             <div className="field-group field-group--full">
-              <label className="field-label" htmlFor="meeting-time">Time</label>
-              <input id="meeting-time" className="field" type="time" value={form.time} onChange={(e) => setField("time", e.target.value)} />
+              <span className="field-label">Time</span>
+              <DateTimeField
+                type="time"
+                value={form.time}
+                onChange={(v) => setField("time", v)}
+                placeholder="No time"
+                ariaLabel="Time"
+              />
             </div>
             <div className="field-group field-group--compact">
               <label className="field-label" htmlFor="meeting-loc">Location</label>

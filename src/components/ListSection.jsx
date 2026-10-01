@@ -221,11 +221,8 @@ export default function ListSection({
         {showDetails && (
           <div className="addform__grid">
             <div className="field-group field-group--full">
-              <label className="field-label" htmlFor={`${title}-date`}>Due date</label>
-              <input
-                id={`${title}-date`}
-                className="field"
-                type="date"
+              <span className="field-label">Due date</span>
+              <DateTimeField
                 value={form.date}
                 onChange={(v) => setField("date", v)}
                 placeholder="No date"
@@ -233,10 +230,8 @@ export default function ListSection({
               />
             </div>
             <div className="field-group field-group--full">
-              <label className="field-label" htmlFor={`${title}-time`}>Time</label>
-              <input
-                id={`${title}-time`}
-                className="field"
+              <span className="field-label">Time</span>
+              <DateTimeField
                 type="time"
                 value={form.time}
                 onChange={(v) => setField("time", v)}
