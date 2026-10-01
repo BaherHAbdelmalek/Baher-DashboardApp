@@ -703,8 +703,30 @@ input[type="time"].field::-webkit-calendar-picker-indicator {
 }
 .addform__top { display: flex; gap: 6px; align-items: stretch; }
 .addform__top .field { flex: 1; min-width: 0; }
-.addform__top .btn--primary { flex-shrink: 0; height: var(--field-h); min-height: var(--field-h); padding: 0 14px; }
-
+.addform__grid {
+  display: grid;
+  /* Column floor is sized for compact fields (selects, short text) — 130px
+     lets Priority/Category/Location pair up on a phone instead of each
+     eating a full row. Native date/time controls don't fit that floor on
+     every engine (Safari's shadow-DOM control is wider than Chromium's), so
+     those fields opt out of the grid's column math entirely via
+     .field-group--full below rather than trying to size one floor that
+     works for both kinds of field. */
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+/* Always takes the whole row, at every breakpoint — for date/time inputs
+   (so a native picker control never has to share a column with anything
+   and can't overlap a neighbor regardless of how many columns fit) and for
+   the Repeat editor (which needs the room). */
+.field-group--full,
+.field-group--wide { grid-column: 1 / -1; }
+/* A deliberately narrow field (a short select, a few-character input) that
+   shouldn't stretch to fill a wide column on its own. */
+.field-group--compact { max-width: 220px; }
 .addform__detailsbtn {
   display: inline-flex;
   align-items: center;
@@ -751,13 +773,11 @@ input[type="time"].field::-webkit-calendar-picker-indicator {
   flex-direction: column;
   gap: 12px;
 }
-.detail__label {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-faint);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 4px;
+.detail__grid {
+  display: grid;
+  /* Same floor as .addform__grid, same reason — see the comment there. */
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
 }
 .detail__footer { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 
@@ -961,7 +981,15 @@ input[type="time"].field::-webkit-calendar-picker-indicator {
     padding: 0 3px;
   }
 
-  .auth__card { padding: 20px; border-radius: 12px; }
+  /* No column override here on purpose. Date/time opt out of the grid's
+     column math via .field-group--full (always full row, any breakpoint),
+     so the remaining compact fields (Priority, Category, Location) are
+     free to use the auto-fit/minmax(130px) rule above and pair up instead
+     of each claiming a full phone-width row. */
+
+  .auth__card { padding: 22px; border-radius: 12px; }
+
+  /* Header gets crowded fast at 360px — drop the labels, keep the icons. */
   .hide-phone { display: none !important; }
 }
 

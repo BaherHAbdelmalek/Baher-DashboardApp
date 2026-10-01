@@ -98,20 +98,39 @@ function Dashboard({ session }) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data } = await supabase
+      // Split into two queries on purpose. `timezone` was added by a later
+      // migration (supabase/migration_003_recurrence.sql) — if a deployment
+      // hasn't run it yet, selecting it alongside ics_token fails the whole
+      // query, and the Settings panel loses its calendar URL even though
+      // ics_token itself is fine. Keeping them separate means the migration
+      // being unapplied only costs the (silent, non-critical) timezone write
+      // below, never the calendar link.
+      const { data: settingsData, error: settingsErr } = await supabase
         .from("user_settings")
-        .select("ics_token, timezone")
+        .select("ics_token")
         .eq("user_id", userId)
         .maybeSingle();
-      if (cancelled || !data) return;
-      setIcsToken(data.ics_token);
+      if (cancelled) return;
+      if (settingsErr) {
+        console.error("Could not load calendar settings:", settingsErr.message);
+      } else if (settingsData) {
+        setIcsToken(settingsData.ics_token);
+      }
 
       // The notification job runs on a UTC server but has to reason about the
       // user's wall clock ("30 minutes before your 9am"), and only the browser
       // knows which zone that is. Recorded on each sign-in so it follows you
-      // when you travel.
+      // when you travel. Best-effort: if the `timezone` column doesn't exist
+      // yet (migration_003 not run), this just no-ops rather than blocking
+      // anything else — the notification job falls back to UTC until it's run.
+      const { data: tzData, error: tzErr } = await supabase
+        .from("user_settings")
+        .select("timezone")
+        .eq("user_id", userId)
+        .maybeSingle();
+      if (cancelled || tzErr) return;
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      if (tz && tz !== data.timezone) {
+      if (tz && tzData && tz !== tzData.timezone) {
         await supabase.from("user_settings").update({ timezone: tz }).eq("user_id", userId);
       }
     })();

@@ -219,19 +219,24 @@ export default function ListSection({
         </button>
 
         {showDetails && (
-          <div className="formgrid">
-            <div className="field-group">
-              <span className="field-label">Due date</span>
-              <DateTimeField
+          <div className="addform__grid">
+            <div className="field-group field-group--full">
+              <label className="field-label" htmlFor={`${title}-date`}>Due date</label>
+              <input
+                id={`${title}-date`}
+                className="field"
+                type="date"
                 value={form.date}
                 onChange={(v) => setField("date", v)}
                 placeholder="No date"
                 ariaLabel="Due date"
               />
             </div>
-            <div className="field-group">
-              <span className="field-label">Time</span>
-              <DateTimeField
+            <div className="field-group field-group--full">
+              <label className="field-label" htmlFor={`${title}-time`}>Time</label>
+              <input
+                id={`${title}-time`}
+                className="field"
                 type="time"
                 value={form.time}
                 onChange={(v) => setField("time", v)}
@@ -239,7 +244,7 @@ export default function ListSection({
                 ariaLabel="Due time"
               />
             </div>
-            <div className="field-group">
+            <div className="field-group field-group--compact">
               <label className="field-label" htmlFor={`${title}-priority`}>Priority</label>
               <select
                 id={`${title}-priority`}
@@ -250,7 +255,7 @@ export default function ListSection({
                 {PRIORITY_ORDER.map((p) => <option key={p} value={p}>{PRIORITY[p].label}</option>)}
               </select>
             </div>
-            <div className="field-group">
+            <div className="field-group field-group--compact">
               <span className="field-label">Category</span>
               <CategorySelect value={form.project} onChange={(v) => setField("project", v)} projects={projects} />
             </div>
@@ -469,8 +474,8 @@ function DetailPanel({ item, update, projects, canSkip, onSkip, onDelete, onClos
         />
       </div>
 
-      <div className="formgrid formgrid--plain">
-        <div className="field-group">
+      <div className="detail__grid">
+        <div className="field-group field-group--full">
           <span className="field-label">Due date</span>
           <DateTimeField
             value={item.due_date || ""}
@@ -479,7 +484,7 @@ function DetailPanel({ item, update, projects, canSkip, onSkip, onDelete, onClos
             ariaLabel="Due date"
           />
         </div>
-        <div className="field-group">
+        <div className="field-group field-group--full">
           <span className="field-label">Time</span>
           <DateTimeField
             type="time"
@@ -489,7 +494,7 @@ function DetailPanel({ item, update, projects, canSkip, onSkip, onDelete, onClos
             ariaLabel="Due time"
           />
         </div>
-        <div className="field-group">
+        <div className="field-group field-group--compact">
           <span className="field-label">Priority</span>
           <select
             className="field"
@@ -499,7 +504,7 @@ function DetailPanel({ item, update, projects, canSkip, onSkip, onDelete, onClos
             {PRIORITY_ORDER.map((p) => <option key={p} value={p}>{PRIORITY[p].label}</option>)}
           </select>
         </div>
-        <div className="field-group">
+        <div className="field-group field-group--compact">
           <span className="field-label">Category</span>
           <CategorySelect
             value={item.project}
