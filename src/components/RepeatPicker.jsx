@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Repeat } from "lucide-react";
+import DateTimeField from "./DateTimeField";
 import {
   PRESETS,
   presetToRule,
@@ -165,13 +166,12 @@ export default function RepeatPicker({ value, onChange, anchorDate, compact = fa
             </select>
 
             {rule.ends.type === "on" && (
-              <input
-                className="field"
-                type="date"
+              <DateTimeField
                 value={rule.ends.date || ""}
                 min={anchorDate || undefined}
-                onChange={(e) => patch({ ends: { type: "on", date: e.target.value } })}
-                aria-label="Repeat until"
+                onChange={(v) => patch({ ends: { type: "on", date: v } })}
+                placeholder="Pick a date"
+                ariaLabel="Repeat until"
               />
             )}
             {rule.ends.type === "after" && (

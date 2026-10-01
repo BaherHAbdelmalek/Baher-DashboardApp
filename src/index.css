@@ -328,7 +328,11 @@ input[type="time"].field::-webkit-calendar-picker-indicator {
 :root[data-theme="dark"] input::-webkit-calendar-picker-indicator { filter: invert(1); }
 
 .field-group { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.field-label {
+/* One rule for both so they can't drift apart: .detail__label lost its own
+   styling in a merge once and rendered as unstyled body text next to properly
+   styled .field-label siblings. */
+.field-label,
+.detail__label {
   font-size: 10px;
   font-weight: 700;
   color: var(--text-faint);
@@ -336,6 +340,9 @@ input[type="time"].field::-webkit-calendar-picker-indicator {
   letter-spacing: 0.05em;
   line-height: 1.4;
 }
+/* Detail-panel section labels sit outside a .field-group, so there's no flex
+   gap to space them from the control below. */
+.detail__label { margin-bottom: 5px; }
 
 .check-input { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; margin: 0; }
 
@@ -741,23 +748,6 @@ input[type="time"].field::-webkit-calendar-picker-indicator {
 }
 @media (hover: hover) and (pointer: fine) { .addform__detailsbtn:hover { color: var(--accent); } }
 @media (hover: none) { .addform__detailsbtn { min-height: 38px; } }
-
-/* Two-up on every width down to 340px. The content is short labelled fields;
-   stacking them one-per-row is what made this panel a mile long. */
-.formgrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px 8px;
-  margin-top: 8px;
-  padding-top: 10px;
-  border-top: 1px dashed var(--border);
-}
-.formgrid--plain { margin-top: 0; padding-top: 0; border-top: none; }
-.formgrid > .field-group--wide { grid-column: 1 / -1; }
-
-@media (min-width: 560px) { .formgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-@media (min-width: 900px) { .formgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-@media (max-width: 339px) { .formgrid { grid-template-columns: 1fr; } }
 
 /* ============================================================================
    Detail panel — attached to the row it belongs to, rather than floating free
