@@ -8,6 +8,7 @@ import { useMediaQuery } from "../lib/useMediaQuery";
 import { advance, normalizeRule, shortRuleLabel, describeRule } from "../lib/recurrence";
 import CategorySelect from "./CategorySelect";
 import RepeatPicker from "./RepeatPicker";
+import DateTimeField from "./DateTimeField";
 
 const SMART_VIEWS = [
   { id: "all", label: "All" },
@@ -175,17 +176,18 @@ export default function ListSection({
         <span className="section__count">{ordered.length} open</span>
       </div>
 
-      <div className="chiprow chiprow--scroll" role="tablist" aria-label={`${title} views`}>
+      <div className={`seg${isPhone ? " seg--scroll" : ""}`} role="tablist" aria-label={`${title} views`}>
         {SMART_VIEWS.map((v) => (
           <button
             key={v.id}
             type="button"
             role="tab"
             aria-selected={smartView === v.id}
-            className={`chip${smartView === v.id ? " chip--on" : ""}`}
+            className={`seg__btn${smartView === v.id ? " seg__btn--on" : ""}`}
             onClick={() => setSmartView(v.id)}
           >
-            {v.label} <span className="chip__count">{counts[v.id]}</span>
+            {v.label}
+            {counts[v.id] > 0 && <span className="seg__count">{counts[v.id]}</span>}
           </button>
         ))}
       </div>
@@ -217,25 +219,24 @@ export default function ListSection({
         </button>
 
         {showDetails && (
-          <div className="addform__grid">
+          <div className="formgrid">
             <div className="field-group">
-              <label className="field-label" htmlFor={`${title}-date`}>Due date</label>
-              <input
-                id={`${title}-date`}
-                className="field"
-                type="date"
+              <span className="field-label">Due date</span>
+              <DateTimeField
                 value={form.date}
-                onChange={(e) => setField("date", e.target.value)}
+                onChange={(v) => setField("date", v)}
+                placeholder="No date"
+                ariaLabel="Due date"
               />
             </div>
             <div className="field-group">
-              <label className="field-label" htmlFor={`${title}-time`}>Time</label>
-              <input
-                id={`${title}-time`}
-                className="field"
+              <span className="field-label">Time</span>
+              <DateTimeField
                 type="time"
                 value={form.time}
-                onChange={(e) => setField("time", e.target.value)}
+                onChange={(v) => setField("time", v)}
+                placeholder="No time"
+                ariaLabel="Due time"
               />
             </div>
             <div className="field-group">
@@ -280,7 +281,7 @@ export default function ListSection({
           return (
             <div key={item.id}>
               {showHeader && <div className="group-header">{g}</div>}
-              <div className="item">
+              <div className={`item${isOpen ? " item--open" : ""}`}>
                 <button
                   type="button"
                   className="item__check"
@@ -468,23 +469,24 @@ function DetailPanel({ item, update, projects, canSkip, onSkip, onDelete, onClos
         />
       </div>
 
-      <div className="detail__grid">
+      <div className="formgrid formgrid--plain">
         <div className="field-group">
           <span className="field-label">Due date</span>
-          <input
-            className="field"
-            type="date"
+          <DateTimeField
             value={item.due_date || ""}
-            onChange={(e) => update(item.id, { due_date: e.target.value || null })}
+            onChange={(v) => update(item.id, { due_date: v || null })}
+            placeholder="No date"
+            ariaLabel="Due date"
           />
         </div>
         <div className="field-group">
           <span className="field-label">Time</span>
-          <input
-            className="field"
+          <DateTimeField
             type="time"
             value={item.due_time ? item.due_time.slice(0, 5) : ""}
-            onChange={(e) => update(item.id, { due_time: e.target.value || null })}
+            onChange={(v) => update(item.id, { due_time: v || null })}
+            placeholder="No time"
+            ariaLabel="Due time"
           />
         </div>
         <div className="field-group">
